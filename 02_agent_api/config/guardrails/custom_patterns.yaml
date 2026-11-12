@@ -1,0 +1,19 @@
+# Reglas de negocio personalizables (Capa 4 del InputGuardrail).
+# Cada regla se evalúa con la librería `regex` (no `re`) con timeout individual
+# (ver CUSTOM_REGEX_TIMEOUT_SECONDS en src/utils/environment.py) para prevenir ReDoS.
+# El equipo de negocio puede editar este archivo sin tocar código.
+
+rules:
+  - name: mencion_competidor_ejemplo
+    pattern: "(?i)\\b(competidor[_\\s]?x|acme\\s*academy)\\b"
+    reason: "Mención de competidor bloqueada por regla de negocio"
+    message: >-
+      No podemos comentar sobre otras instituciones. ¿En qué puedo ayudarte
+      sobre nuestros programas?
+
+  - name: solicitud_descuento_no_autorizado
+    pattern: "(?i)dame\\s+un\\s+descuento\\s+del\\s+\\d{2,3}\\s*%"
+    reason: "Solicitud de descuento fuera de política"
+    message: >-
+      No estoy autorizado para ofrecer descuentos personalizados. Por favor
+      contacta a un asesor comercial para más información.

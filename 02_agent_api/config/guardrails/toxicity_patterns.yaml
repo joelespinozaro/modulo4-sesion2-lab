@@ -1,0 +1,85 @@
+# Patrones de detección de Toxicidad (Capa 3 del InputGuardrail).
+# Cada patrón es una expresión regular evaluada con re.IGNORECASE | re.MULTILINE.
+# Agrupados en 5 categorías según HU_InputGuardrail.md (Capa 3).
+# La categoría "autolesion" usa un mensaje de contención distinto (ver bloque "respuestas").
+
+amenazas_directas:
+  - "te\\s+voy\\s+a\\s+matar"
+  - "i\\s+will\\s+kill\\s+you"
+  - "voy\\s+a\\s+matarte"
+  - "te\\s+voy\\s+a\\s+hacer\\s+da[ñn]o"
+  - "i'?m\\s+going\\s+to\\s+hurt\\s+you"
+  - "te\\s+voy\\s+a\\s+golpear"
+  - "i'?ll\\s+beat\\s+you\\s+up"
+  - "voy\\s+a\\s+destruirte"
+  - "i\\s+will\\s+destroy\\s+you"
+  - "te\\s+voy\\s+a\\s+encontrar\\s+y\\s+(matarte|lastimarte)"
+  - "i\\s+know\\s+where\\s+you\\s+live"
+  - "s[eé]\\s+d[oó]nde\\s+vives"
+
+discurso_de_odio:
+  - "\\b(negro|negros)\\s+de\\s+mierda\\b"
+  - "\\bmuerte\\s+a\\s+(los|las)\\s+\\w+"
+  - "death\\s+to\\s+all\\s+\\w+"
+  - "\\b(judios|jud[ií]os)\\s+de\\s+mierda\\b"
+  - "\\bque\\s+se\\s+mueran\\s+todos\\s+los\\s+\\w+"
+  - "all\\s+\\w+\\s+should\\s+die"
+  - "\\binferior(es)?\\s+por\\s+su\\s+raza\\b"
+  - "inferior\\s+because\\s+of\\s+(their|his|her)\\s+race"
+  - "\\bexterminar\\s+a\\s+(los|las)\\s+\\w+"
+  - "exterminate\\s+all\\s+\\w+"
+  - "\\bno\\s+deber[ií]an\\s+existir\\s+los\\s+\\w+"
+  - "\\w+\\s+shouldn'?t\\s+be\\s+allowed\\s+to\\s+exist"
+
+acoso_sexual:
+  - "env[ií]ame\\s+fotos?\\s+(desnud[ao]s?|sexuales?)"
+  - "send\\s+me\\s+nude\\s+(pics?|photos?)"
+  - "quiero\\s+tener\\s+sexo\\s+con\\s+(tigo|usted)"
+  - "i\\s+want\\s+to\\s+have\\s+sex\\s+with\\s+you"
+  - "describe\\s+una\\s+escena\\s+sexual\\s+expl[ií]cita"
+  - "describe\\s+an?\\s+explicit\\s+sexual\\s+scene"
+  - "hazme\\s+una\\s+propuesta\\s+sexual"
+  - "eres\\s+muy\\s+sexy\\s+mand[aá]me"
+  - "quiero\\s+abusar\\s+de\\s+ti"
+  - "i\\s+want\\s+to\\s+molest\\s+you"
+
+incitacion_violencia:
+  - "c[oó]mo\\s+hacer\\s+una\\s+bomba"
+  - "how\\s+to\\s+make\\s+a\\s+bomb"
+  - "c[oó]mo\\s+fabricar\\s+un\\s+arma"
+  - "how\\s+to\\s+build\\s+a\\s+weapon"
+  - "c[oó]mo\\s+envenenar\\s+a\\s+alguien"
+  - "how\\s+to\\s+poison\\s+someone"
+  - "incita(r)?\\s+a\\s+(la\\s+)?violencia"
+  - "incite\\s+violence\\s+against"
+  - "organicemos\\s+un\\s+ataque"
+  - "let'?s\\s+organize\\s+an\\s+attack"
+  - "c[oó]mo\\s+hacer\\s+explosivos"
+  - "how\\s+to\\s+make\\s+explosives"
+
+autolesion:
+  - "quiero\\s+suicidarme"
+  - "i\\s+want\\s+to\\s+kill\\s+myself"
+  - "quiero\\s+quitarme\\s+la\\s+vida"
+  - "i\\s+want\\s+to\\s+end\\s+my\\s+life"
+  - "c[oó]mo\\s+me\\s+corto\\s+(las\\s+)?venas"
+  - "how\\s+to\\s+cut\\s+myself"
+  - "no\\s+quiero\\s+seguir\\s+viviendo"
+  - "i\\s+don'?t\\s+want\\s+to\\s+live\\s+anymore"
+  - "c[oó]mo\\s+puedo\\s+suicidarme"
+  - "how\\s+can\\s+i\\s+kill\\s+myself"
+  - "me\\s+quiero\\s+morir"
+  - "i\\s+want\\s+to\\s+die"
+  - "me\\s+voy\\s+a\\s+autolesionar"
+  - "i'?m\\s+going\\s+to\\s+self\\s*harm"
+
+respuestas:
+  default: >-
+    Tu mensaje contiene contenido que no podemos procesar por nuestras políticas
+    de seguridad. Por favor, reformula tu consulta.
+  autolesion: >-
+    Lamento mucho que estés pasando por un momento tan difícil. No estás solo/a
+    y hay ayuda disponible ahora mismo. En Perú puedes llamar a la Línea 113 opción 5
+    (Salud Mental, MINSA) o a la Línea 100 (MIMP), disponibles las 24 horas, todos los días.
+    Si sientes que tu vida está en peligro inmediato, por favor comunícate al 105 (PNP)
+    o acude al centro de salud más cercano. Tu vida es muy importante.

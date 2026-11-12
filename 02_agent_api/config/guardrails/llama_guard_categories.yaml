@@ -1,0 +1,23 @@
+# Configuración de la Capa 8 (Llama Guard 4) del InputGuardrail.
+# Taxonomía MLCommons (categorías S1-S13). skip_categories permite omitir
+# categorías específicas según el caso de uso comercial, sin tocar código.
+
+categories:
+  S1: "Violent Crimes"
+  S2: "Non-Violent Crimes"
+  S3: "Sex-Related Crimes"
+  S4: "Child Sexual Exploitation"
+  S5: "Defamation"
+  S6: "Specialized Advice"
+  S7: "Privacy"
+  S8: "Intellectual Property"
+  S9: "Indiscriminate Weapons"
+  S10: "Hate"
+  S11: "Suicide & Self-Harm"
+  S12: "Sexual Content"
+  S13: "Elections"
+
+# Categorías omitidas por defecto (ninguna). Ejemplo para omitir S6 (Specialized
+# Advice, ej. consejos financieros/legales generales que sí queremos permitir):
+# skip_categories: ["S6"]
+skip_categories: []

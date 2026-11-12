@@ -1,0 +1,21 @@
+# Estrategia por entidad PII para la Capa 5 del InputGuardrail.
+# Valores permitidos: block (rechaza el mensaje), mask (oculta parcialmente), off (desactivado).
+# umbral de confianza aplicado solo a entidades detectadas vía Presidio (NLP/ML).
+
+score_threshold: 0.6
+
+strategies:
+  DNI_PE: block
+  RUC_PE: block
+  PHONE_PE: mask
+  EMAIL_ADDRESS: mask
+  CREDIT_CARD: block
+  IBAN_CODE: block
+  PERSON: off
+  LOCATION: off
+
+messages:
+  block: >-
+    Tu mensaje parece contener datos personales sensibles (documento de
+    identidad, tarjeta u otro dato). Por tu seguridad, evita compartir esta
+    información en el chat.

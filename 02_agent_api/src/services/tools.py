@@ -1,15 +1,10 @@
-from typing import Any, Dict, List, Tuple
+import sys
+from typing import Dict, List, Tuple
 
 from langchain_core.tools import tool
-from langchain_openai import OpenAIEmbeddings
-from langchain_qdrant import QdrantVectorStore
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
-from src.utils.environment import (
-    OPENAI_API_KEY,
-    QDRANT_API_KEY,
-    QDRANT_COLLECTION_NAME,
-    QDRANT_URL,
-)
+from src.utils.environment import DEMO_MCP_SERVER_PATH, NEON_API_KEY
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,52 +16,95 @@ def get_weather(location: str) -> str:
     return f"El clima en {location} es soleado con una temperatura de 22°C."
 
 
-_vector_store: QdrantVectorStore | None = None
+LOCAL_TOOLS = [get_weather]
 
 
-def _get_vector_store() -> QdrantVectorStore:
-    global _vector_store
-    if _vector_store is None:
-        logger.info(
-            "Inicializando QdrantVectorStore",
-            extra={"collection": QDRANT_COLLECTION_NAME},
-        )
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small", api_key=OPENAI_API_KEY
-        )
-        _vector_store = QdrantVectorStore.from_existing_collection(
-            embedding=embeddings,
-            collection_name=QDRANT_COLLECTION_NAME,
-            url=QDRANT_URL,
-            api_key=QDRANT_API_KEY,
-        )
-    return _vector_store
+async def load_neon_tools() -> Tuple[list, object | None]:
+    """Conecta al MCP de Neon y retorna (tools, client). Retorna ([], None) si NEON_API_KEY no está configurado."""
+    if not NEON_API_KEY:
+        logger.info("NEON_API_KEY no configurado — omitiendo integración Neon MCP")
+        return [], None
+
+    client = MultiServerMCPClient(
+        {
+            "neon": {
+                "transport": "streamable_http",
+                "url": "https://mcp.neon.tech/mcp",
+                "headers": {
+                    "Authorization": f"Bearer {NEON_API_KEY}"
+                },
+            }
+        }
+    )
+    tools = await client.get_tools()
+    return tools, client
 
 
-@tool(response_format="content_and_artifact")
-def retrieve_documents(query: str, k: int = 4) -> Tuple[str, List[Dict[str, Any]]]:
-    """Busca en la base de conocimiento (Qdrant) documentos relevantes sobre la
-    academia: programas, cursos, temarios, precios, duración, requisitos,
-    certificaciones e información institucional en general. Usa siempre esta
-    herramienta para responder preguntas sobre estos temas, en lugar de
-    responder de memoria."""
-    vector_store = _get_vector_store()
-    results = vector_store.similarity_search_with_score(query, k=k)
+DEMO_MCP_SERVER_NAME = "demo_mcp_server"
 
-    if not results:
-        return "No se encontraron documentos relevantes.", []
 
-    contexts: List[Dict[str, Any]] = []
-    content_parts: List[str] = []
-    for doc, score in results:
-        contexts.append(
+async def load_demo_mcp_tools() -> Tuple[list, MultiServerMCPClient | None]:
+    """Conecta al demo MCP server (03_mcp_server) por stdio y retorna (tools, client).
+    Retorna ([], None) si DEMO_MCP_SERVER_PATH no está configurado.
+
+    Se ejecuta con sys.executable (el mismo intérprete/venv que corre esta API). Nota:
+    03_mcp_server tiene sus propias dependencias (ver su requirements.txt, incluye
+    langchain-qdrant/qdrant-client para retrieve_documents) que deben estar instaladas
+    en ese venv para que esta integración funcione.
+    """
+    if not DEMO_MCP_SERVER_PATH:
+        logger.info("DEMO_MCP_SERVER_PATH no configurado — omitiendo integración con demo MCP server")
+        return [], None
+
+    client = MultiServerMCPClient(
+        {
+            DEMO_MCP_SERVER_NAME: {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [DEMO_MCP_SERVER_PATH],
+            }
+        }
+    )
+    tools = await client.get_tools()
+    return tools, client
+
+
+async def load_demo_mcp_skills(client: MultiServerMCPClient | None) -> List[Dict[str, str]]:
+    """Descubre las skills que expone el demo MCP server como recursos MCP
+    (esquema skill://..., ver src/routes/skills.py en 03_mcp_server).
+
+    Progressive disclosure: solo se listan name/description/uri de cada skill (barato,
+    va al system prompt); el contenido completo se lee bajo demanda vía load_skill
+    (ver agent_service.py), no acá. Retorna [] si no hay client o no expone skills."""
+    if client is None:
+        return []
+
+    try:
+        async with client.session(DEMO_MCP_SERVER_NAME) as session:
+            result = await session.list_resources()
+    except Exception as exc:
+        logger.warning("Error listando skills del demo MCP server: %s", exc)
+        return []
+
+    skills: List[Dict[str, str]] = []
+    for resource in result.resources:
+        uri = str(resource.uri)
+        if not uri.startswith("skill://"):
+            continue
+        skills.append(
             {
-                "page_content": doc.page_content,
-                "metadata": doc.metadata,
-                "score": float(score),
+                "name": resource.name or uri,
+                "description": resource.description or "",
+                "uri": uri,
             }
         )
-        content_parts.append(doc.page_content)
+    return skills
 
-    content = "\n\n---\n\n".join(content_parts)
-    return content, contexts
+
+def get_all_tools(mcp_tools: list | None = None) -> list:
+    """Retorna las tools locales combinadas con las tools MCP opcionales."""
+    all_tools = list(LOCAL_TOOLS)
+    if mcp_tools:
+        all_tools.extend(mcp_tools)
+        logger.info("Cargadas %d tool(s) MCP: %s", len(mcp_tools), [t.name for t in mcp_tools])
+    return all_tools

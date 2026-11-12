@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# Modelo spaCy usado por Presidio (Capa 5 del InputGuardrail) para NER en español.
+RUN python -m spacy download es_core_news_sm
 
 COPY . .
 

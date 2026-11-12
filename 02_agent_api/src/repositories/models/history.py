@@ -18,4 +18,6 @@ class History(Base):
     input_tokens = Column(Integer, nullable=True)
     output_tokens = Column(Integer, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    retrieved_contexts = Column(Text, nullable=True)
+    # Columna física sigue llamándose retrieved_contexts (evita una migración);
+    # ahora guarda una lista de ToolSource (ver dto/api_entities.py), no solo RAG.
+    sources = Column("retrieved_contexts", Text, nullable=True)
