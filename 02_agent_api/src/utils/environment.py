@@ -6,6 +6,10 @@ OPENAI_MODEL: str = config("OPENAI_MODEL")
 DATABASE_URL: str = config("DATABASE_URL")
 HISTORY_LIMIT: int = config("HISTORY_LIMIT", default=10, cast=int)
 
+# Presupuesto máximo de tokens acumulados por invocación del agente.
+# Cuando se supera, el agente responde con un mensaje de límite alcanzado.
+TOKEN_BUDGET: int = config("TOKEN_BUDGET", default=8000, cast=int)
+
 QDRANT_URL: str | None = config("QDRANT_URL", default=None)
 QDRANT_API_KEY: str | None = config("QDRANT_API_KEY", default=None)
 QDRANT_COLLECTION_NAME: str = config("QDRANT_COLLECTION_NAME", default="documents")

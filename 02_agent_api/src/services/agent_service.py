@@ -11,6 +11,12 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMe
 from langchain_openai import ChatOpenAI
 from sqlalchemy.orm import Session
 
+from src.services.middleware import (
+    LoggingMiddleware,
+    RetryMiddleware,
+    SafetyGuardMiddleware,
+    TokenBudgetMiddleware,
+)
 from src.services.tools import get_weather, retrieve_documents
 from src.repositories.history_repository import HistoryRepository
 from src.repositories.models.history import History
@@ -18,6 +24,7 @@ from src.utils.environment import (
     HISTORY_LIMIT,
     OPENAI_API_KEY,
     OPENAI_MODEL,
+    TOKEN_BUDGET,
 )
 from src.utils.logger import get_logger
 
@@ -245,7 +252,13 @@ class AgentService:
             model=self._llm,
             tools=[get_weather, retrieve_documents],
             system_prompt=SYSTEM_PROMPT,
-            middleware=[SkillMiddleware()],
+            middleware=[
+                LoggingMiddleware(),                      # 1° logging granular de cada LLM call
+                TokenBudgetMiddleware(budget=TOKEN_BUDGET), # 2° control de presupuesto de tokens
+                SafetyGuardMiddleware(),                  # 3° guardia de contenido prohibido
+                RetryMiddleware(max_retries=3),           # 4° reintentos ante errores transitorios
+                SkillMiddleware(),                        # 5° inyección de skills (progressive disclosure)
+            ],
         )
 
     async def chat(self, question: str, user: str, session_id: Optional[str]) -> dict:
