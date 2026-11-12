@@ -14,8 +14,8 @@ En la Sesión 1 el asistente del instituto aprendió a razonar, usar tools y res
 
 ## Guías
 
-- `docs/guia-sesion2-skills-hooks.html`: los conceptos de la sesión con artefactos interactivos y el laboratorio paso a paso.
-- `docs/guia-repo-modulo4-sesion2.html`: qué hay en este repo, su arquitectura y qué agrega cada rama.
+- `docs/guia-sesion2-skills-hooks.html`: los conceptos de la sesión con artefactos interactivos y un resumen del laboratorio.
+- `docs/guia-laboratorio-sesion2.html`: **el paso a paso del lab**. Cómo crear cada API key, los `.env` listos para copiar, los comandos para Linux, macOS y Windows, y los errores frecuentes.
 
 Descárgalas y ábrelas en el navegador.
 
@@ -86,7 +86,7 @@ python -m src.main          # :8090
 
 Luego, en `http://localhost:3030/dashboard`: inicia la sesión `default`, escanea el QR con un número de pruebas y registra el webhook `http://host.docker.internal:8090/waha/webhook` con el evento `message`. En Linux usa la IP local de tu máquina en lugar de `host.docker.internal`.
 
-Para pasar a la siguiente parte: `git checkout parte-2-skills` y reinicia el Agent API. La guía del alumno tiene los pasos de cada parte con comandos para Linux, macOS y Windows.
+Para pasar a la siguiente parte: `git checkout parte-2-skills` y reinicia el Agent API. El paso a paso completo de cada parte está en `docs/guia-laboratorio-sesion2.html`.
 
 ## Seguridad
 
