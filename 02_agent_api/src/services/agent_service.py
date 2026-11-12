@@ -137,6 +137,7 @@ def _build_load_skill_tool(client: MultiServerMCPClient, skills: List[Dict[str, 
     skills_by_name = {s["name"]: s["uri"] for s in skills}
 
     async def _load_skill(skill_name: str) -> str:
+        logger.info("load_skill: el modelo pidió la skill %s", skill_name)
         uri = skills_by_name.get(skill_name)
         if uri is None:
             available = ", ".join(skills_by_name) or "ninguna"
