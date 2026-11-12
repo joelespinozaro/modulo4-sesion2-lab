@@ -75,6 +75,9 @@ class HistoryItem(BaseModel):
     user: Optional[str] = None
     sources: Optional[List[ToolSource]] = None
     created_at: datetime
+    is_ok: Optional[bool] = None
+    error_type_id: Optional[int] = None
+    observations: Optional[str] = None
 
     @field_validator("sources", mode="before")
     @classmethod
@@ -89,3 +92,66 @@ class HistoryItem(BaseModel):
 class UserSessionsResponse(BaseModel):
     user: str
     sessions: List[str]
+
+
+class ErrorTypeResponse(BaseModel):
+    id: int
+    description: str
+
+    class Config:
+        from_attributes = True
+
+
+class FeedbackRequest(BaseModel):
+    trace_id: str
+    is_ok: bool
+    error_type_id: Optional[int] = None
+    observations: Optional[str] = None
+
+
+class FeedbackResponse(BaseModel):
+    trace_id: UUID
+    session_id: UUID
+    question: str
+    answer: str
+    user: Optional[str] = None
+    sources: Optional[List[ToolSource]] = None
+    created_at: datetime
+    is_ok: Optional[bool] = None
+    error_type_id: Optional[int] = None
+    observations: Optional[str] = None
+
+    @field_validator("sources", mode="before")
+    @classmethod
+    def parse_sources(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return json.loads(value) if value else None
+        return value
+
+    class Config:
+        from_attributes = True
+
+
+# ── RAGAS Evaluation ─────────────────────────────────────────────────────────
+
+class EvaluateRequest(BaseModel):
+    trace_ids: Optional[List[str]] = None
+    session_id: Optional[str] = None
+    ground_truths: Optional[Dict[str, str]] = None  # {trace_id: expected_answer}
+
+
+class MetricResult(BaseModel):
+    metric: str
+    score: Optional[float]
+
+
+class EvaluateResponse(BaseModel):
+    evaluation_id: str
+    evaluated_at: datetime
+    trace_ids: List[str]
+    llm_judge: str
+    metrics: List[MetricResult]
+    langsmith_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True

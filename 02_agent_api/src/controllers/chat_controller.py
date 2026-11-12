@@ -20,3 +20,19 @@ def get_history(session_id: str, db: Session) -> List[History]:
 def get_sessions(user: str, db: Session) -> List[str]:
     service = HistoryService(db)
     return service.get_sessions_by_user(user)
+
+
+def handle_feedback(
+    trace_id: str,
+    is_ok: bool,
+    error_type_id: Optional[int],
+    observations: Optional[str],
+    db: Session,
+) -> History:
+    service = HistoryService(db)
+    return service.save_feedback(
+        trace_id=trace_id,
+        is_ok=is_ok,
+        error_type_id=error_type_id,
+        observations=observations,
+    )

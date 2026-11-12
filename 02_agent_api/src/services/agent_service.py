@@ -243,12 +243,11 @@ class AgentService:
         self._repo = HistoryRepository(db)
 
     async def chat(self, question: str, user: str, session_id: Optional[str]) -> dict:
-        # No se loguea la pregunta en texto plano: el InputGuardrail (capas 1-8)
-        # corre dentro de _agent.ainvoke y puede bloquear mensajes con secretos
-        # o PII antes de procesarlos; solo se hashea aquí (criterio de privacidad
-        # de HU_InputGuardrail.md).
+        # La pregunta se loguea en texto plano (igual que la respuesta más abajo);
+        # PIIRedactionFilter (src.utils.pii_log_filter, adjunto a todo logger vía
+        # get_logger()) enmascara cualquier PII detectado antes de emitir el log.
         logger.info(
-            "Pregunta entrante",
+            f"Pregunta entrante: {question}",
             extra={"user": user, "question_hash": hash_message(question)},
         )
 

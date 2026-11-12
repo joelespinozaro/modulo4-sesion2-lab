@@ -11,8 +11,8 @@ strategies:
   EMAIL_ADDRESS: mask
   CREDIT_CARD: block
   IBAN_CODE: block
-  PERSON: off
-  LOCATION: off
+  PERSON: "off"
+  LOCATION: "off"
 
 messages:
   block: >-

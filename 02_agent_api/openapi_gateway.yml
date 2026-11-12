@@ -1,0 +1,640 @@
+openapi: "3.0.3"
+info:
+  title: Agente Simple (Gateway)
+  description: >-
+    Gateway de GCP API Gateway delante de 02_agent_api. El frontend
+    (01_agent-app) llama a este Gateway, nunca directo al Cloud Run de la API
+    — el Gateway valida el token de Identity Platform antes de reenviar la petición.
+    PLANTILLA PARAMETRIZADA: no subir tal cual a gcloud. Generar la versión
+    final con envsubst (ver DEPLOYMENT.md) antes de subirla.
+  version: "1.0.0"
+
+# Extensión de Google API Gateway: declara los backends con nombre.
+# Referencia: https://docs.cloud.google.com/api-gateway/docs/oasv3-extensions
+x-google-api-management:
+  backends:
+    agent_api_backend:
+      address: ${CLOUD_RUN_URL}
+      pathTranslation: APPEND_PATH_TO_ADDRESS
+      protocol: "http/1.1"
+      # La primera ejecución inicializa el agente, MCP y guardrails. El valor
+      # predeterminado del Gateway puede expirar antes de que termine.
+      deadline: 120.0
+
+x-google-backend: agent_api_backend
+
+servers:
+  - url: https://${GATEWAY_HOST}
+    x-google-endpoint:
+      allowCors: True
+
+tags:
+  - name: chat
+    description: Operaciones de conversación con el agente
+  - name: history
+    description: Historial de conversaciones y sesiones
+  - name: errors
+    description: Catálogo de tipos de error
+  - name: feedback
+    description: Calificación de respuestas del agente
+  - name: evaluation
+    description: Evaluación de respuestas con RAGAS
+
+paths:
+  /api/chat:
+    options:
+      operationId: chatOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    post:
+      summary: Enviar un mensaje al agente
+      description: |
+        Recibe una pregunta del usuario y retorna la respuesta del agente.
+        Si `session_id` no se envía o viene vacío, se genera un UUID aleatorio.
+        El historial de conversación se recupera desde la base de datos usando el `session_id`.
+      operationId: chat
+      tags:
+        - chat
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            examples:
+              nueva_sesion:
+                summary: Nueva sesión (sin session_id)
+                value:
+                  question: "¿Cuál es la fecha de hoy?"
+                  user: "usuario_01"
+              sesion_existente:
+                summary: Sesión existente
+                value:
+                  question: "¿Y qué hora es?"
+                  user: "usuario_01"
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: Respuesta del agente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/history/{session_id}:
+    parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: ID de sesión cuyo historial se desea consultar
+        example: "550e8400-e29b-41d4-a716-446655440000"
+    options:
+      operationId: getHistoryOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    get:
+      summary: Obtener historial de conversación
+      description: Retorna todos los mensajes de una sesión ordenados cronológicamente.
+      operationId: getHistory
+      tags:
+        - history
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      responses:
+        "200":
+          description: Lista de mensajes del historial
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryItem"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/sessions/{user}:
+    parameters:
+      - name: user
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Identificador del usuario
+        example: "usuario_01"
+    options:
+      operationId: getSessionsByUserOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    get:
+      summary: Obtener sesiones de un usuario
+      description: Retorna los session_id únicos de un usuario ordenados del más reciente al más antiguo.
+      operationId: getSessionsByUser
+      tags:
+        - history
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      responses:
+        "200":
+          description: Lista de session_id del usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSessionsResponse"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/errors:
+    options:
+      operationId: listErrorTypesOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    get:
+      summary: Listar tipos de error
+      description: Retorna el catálogo de tipos de error disponibles para calificar una respuesta incorrecta.
+      operationId: listErrorTypes
+      tags:
+        - errors
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      responses:
+        "200":
+          description: Lista de tipos de error
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ErrorTypeResponse"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "500":
+          description: Error interno del servidor
+
+  /api/feedback:
+    options:
+      operationId: feedbackOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    post:
+      summary: Calificar una respuesta del agente
+      description: |
+        Recibe la calificación del usuario sobre una respuesta del agente identificada por `trace_id`.
+        Si `is_ok` es `false`, se puede indicar el tipo de error (`error_type_id`) y observaciones adicionales.
+      operationId: feedback
+      tags:
+        - feedback
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequest"
+            examples:
+              calificacion_ok:
+                summary: Respuesta correcta
+                value:
+                  trace_id: "123e4567-e89b-12d3-a456-426614174000"
+                  is_ok: true
+              calificacion_error:
+                summary: Respuesta incorrecta con tipo de error
+                value:
+                  trace_id: "123e4567-e89b-12d3-a456-426614174000"
+                  is_ok: false
+                  error_type_id: 1
+                  observations: "La respuesta no fue correcta para mi caso."
+      responses:
+        "200":
+          description: Feedback guardado correctamente, retorna el registro actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackResponse"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "404":
+          description: trace_id no encontrado
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/evaluate:
+    options:
+      operationId: evaluateOptions
+      summary: CORS preflight
+      x-google-backend: agent_api_backend
+      responses:
+        "204":
+          description: No Content
+    post:
+      summary: Evaluar respuestas del agente con RAGAS
+      description: |
+        Ejecuta una evaluación RAGAS (AnswerRelevancy y, si todos los traces tienen
+        contexto recuperado, también Faithfulness) sobre uno o varios turnos de
+        conversación, usando `gpt-4o-mini` como LLM judge.
+      operationId: evaluate
+      tags:
+        - evaluation
+      x-google-backend: agent_api_backend
+      security:
+        - identity_platform: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluateRequest"
+      responses:
+        "200":
+          description: Resultado de la evaluación
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluateResponse"
+        "401":
+          description: Token de autenticación ausente o inválido.
+        "404":
+          description: No se encontraron registros de historial para los criterios dados
+        "422":
+          description: Error de validación en el request (falta trace_ids o session_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "503":
+          description: Dependencias de RAGAS incompletas o incompatibles
+        "500":
+          description: Error interno del servidor
+
+components:
+  # Esquema de seguridad para Identity Platform: OAuth2 implícito + extensión
+  # x-google-auth (issuer, jwksUri, audiences) propia de Google API Gateway.
+  # Ref: https://docs.cloud.google.com/api-gateway/docs/oasv3-extensions
+  securitySchemes:
+    identity_platform:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://${IDENTITY_PLATFORM_PROJECT_ID}.firebaseapp.com
+          scopes: {}
+      x-google-auth:
+        issuer: https://securetoken.google.com/${IDENTITY_PLATFORM_PROJECT_ID}
+        jwksUri: https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com
+        audiences:
+          - ${IDENTITY_PLATFORM_PROJECT_ID}
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - question
+        - user
+      properties:
+        question:
+          type: string
+          example: "¿Cuál es la fecha de hoy?"
+        user:
+          type: string
+          example: usuario_01
+        session_id:
+          type: string
+          nullable: true
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ChatResponse:
+      type: object
+      required:
+        - user
+        - answer
+        - session_id
+        - trace_id
+      properties:
+        user:
+          type: string
+        answer:
+          type: string
+        session_id:
+          type: string
+        trace_id:
+          type: string
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/ToolSource"
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeneratedFile"
+
+    HistoryItem:
+      type: object
+      required:
+        - question
+        - answer
+        - trace_id
+        - session_id
+        - created_at
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        trace_id:
+          type: string
+        session_id:
+          type: string
+        user:
+          type: string
+          nullable: true
+        sources:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/ToolSource"
+        created_at:
+          type: string
+          format: date-time
+        is_ok:
+          type: boolean
+          nullable: true
+        error_type_id:
+          type: integer
+          nullable: true
+        observations:
+          type: string
+          nullable: true
+
+    ErrorTypeResponse:
+      type: object
+      required:
+        - id
+        - description
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+
+    FeedbackRequest:
+      type: object
+      required:
+        - trace_id
+        - is_ok
+      properties:
+        trace_id:
+          type: string
+        is_ok:
+          type: boolean
+        error_type_id:
+          type: integer
+          nullable: true
+        observations:
+          type: string
+          nullable: true
+
+    FeedbackResponse:
+      type: object
+      required:
+        - trace_id
+        - session_id
+        - question
+        - answer
+        - created_at
+      properties:
+        trace_id:
+          type: string
+        session_id:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+        user:
+          type: string
+          nullable: true
+        sources:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/ToolSource"
+        created_at:
+          type: string
+          format: date-time
+        is_ok:
+          type: boolean
+          nullable: true
+        error_type_id:
+          type: integer
+          nullable: true
+        observations:
+          type: string
+          nullable: true
+
+    GeneratedFile:
+      type: object
+      required:
+        - tool
+        - filename
+        - mime_type
+        - data_base64
+      properties:
+        tool:
+          type: string
+        filename:
+          type: string
+        mime_type:
+          type: string
+        data_base64:
+          type: string
+
+    ToolSource:
+      type: object
+      required:
+        - tool
+        - label
+      properties:
+        tool:
+          type: string
+        label:
+          type: string
+        input:
+          type: object
+          nullable: true
+        content:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          nullable: true
+        image_link_only:
+          type: boolean
+          default: false
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+        items:
+          type: array
+          items:
+            type: object
+        contexts:
+          type: array
+          items:
+            type: object
+            properties:
+              page_content:
+                type: string
+              metadata:
+                type: object
+              score:
+                type: number
+
+    UserSessionsResponse:
+      type: object
+      required:
+        - user
+        - sessions
+      properties:
+        user:
+          type: string
+        sessions:
+          type: array
+          items:
+            type: string
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
+
+    EvaluateRequest:
+      type: object
+      properties:
+        trace_ids:
+          type: array
+          nullable: true
+          items:
+            type: string
+        session_id:
+          type: string
+          nullable: true
+        ground_truths:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+
+    MetricResult:
+      type: object
+      required:
+        - metric
+      properties:
+        metric:
+          type: string
+        score:
+          type: number
+          nullable: true
+
+    EvaluateResponse:
+      type: object
+      required:
+        - evaluation_id
+        - evaluated_at
+        - trace_ids
+        - llm_judge
+        - metrics
+      properties:
+        evaluation_id:
+          type: string
+        evaluated_at:
+          type: string
+          format: date-time
+        trace_ids:
+          type: array
+          items:
+            type: string
+        llm_judge:
+          type: string
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricResult"
+        langsmith_url:
+          type: string
+          nullable: true

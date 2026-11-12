@@ -10,4 +10,4 @@ y no dentro de `src/`.
 from src.main import mcp
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http")

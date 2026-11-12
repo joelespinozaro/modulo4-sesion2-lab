@@ -192,6 +192,55 @@ paths:
         "500":
           description: Error interno del servidor
 
+  /api/evaluate:
+    post:
+      summary: Evaluar respuestas del agente con RAGAS
+      description: |
+        Ejecuta una evaluación RAGAS (AnswerRelevancy y, si todos los traces tienen
+        contexto recuperado, también Faithfulness) sobre uno o varios turnos de
+        conversación, usando `gpt-4o-mini` como LLM judge. Si `LANGSMITH_API_KEY`
+        está configurado, exporta las métricas como feedback a LangSmith.
+      operationId: evaluate
+      tags:
+        - evaluation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluateRequest"
+            examples:
+              por_sesion:
+                summary: Evaluar toda una sesión
+                value:
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+              por_trace_ids:
+                summary: Evaluar traces específicos con ground truth
+                value:
+                  trace_ids:
+                    - "123e4567-e89b-12d3-a456-426614174000"
+                  ground_truths:
+                    "123e4567-e89b-12d3-a456-426614174000": "Hoy es 25 de mayo de 2026."
+      responses:
+        "200":
+          description: Resultado de la evaluación
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluateResponse"
+        "404":
+          description: No se encontraron registros de historial para los criterios dados
+        "422":
+          description: Error de validación en el request (falta trace_ids o session_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "503":
+          description: Dependencias de RAGAS incompletas o incompatibles
+        "500":
+          description: Error interno del servidor
+
 components:
   schemas:
     ChatRequest:
@@ -238,6 +287,18 @@ components:
           type: string
           description: ID único de trazabilidad generado por petición
           example: "123e4567-e89b-12d3-a456-426614174000"
+        sources:
+          type: array
+          description: Tools/citas usadas por el agente para generar la respuesta (RAG, Neon, etc.)
+          items:
+            $ref: "#/components/schemas/ToolSource"
+        files:
+          type: array
+          description: |
+            Archivos generados por una tool en este turno (ej. generate_pptx), para
+            descargar. No se persisten en el historial.
+          items:
+            $ref: "#/components/schemas/GeneratedFile"
 
     HistoryItem:
       type: object
@@ -267,24 +328,12 @@ components:
           nullable: true
           description: Identificador del usuario
           example: "igorov"
-        retrieved_contexts:
+        sources:
           type: array
           nullable: true
-          description: Contextos recuperados usados por el agente para responder
+          description: Tools/citas usadas por el agente para responder (RAG, Neon, etc.)
           items:
-            type: object
-            properties:
-              text:
-                type: string
-              source:
-                type: string
-                nullable: true
-              score:
-                type: number
-                nullable: true
-              chunk_id:
-                type: string
-                nullable: true
+            $ref: "#/components/schemas/ToolSource"
         created_at:
           type: string
           format: date-time
@@ -364,24 +413,12 @@ components:
           nullable: true
           description: Identificador del usuario
           example: "igorov"
-        retrieved_contexts:
+        sources:
           type: array
           nullable: true
-          description: Contextos recuperados usados por el agente para responder
+          description: Tools/citas usadas por el agente para responder (RAG, Neon, etc.)
           items:
-            type: object
-            properties:
-              text:
-                type: string
-              source:
-                type: string
-                nullable: true
-              score:
-                type: number
-                nullable: true
-              chunk_id:
-                type: string
-                nullable: true
+            $ref: "#/components/schemas/ToolSource"
         created_at:
           type: string
           format: date-time
@@ -394,6 +431,79 @@ components:
         observations:
           type: string
           nullable: true
+
+    GeneratedFile:
+      type: object
+      description: Un archivo entregable generado por una tool (ej. generate_pptx) en el turno actual.
+      required:
+        - tool
+        - filename
+        - mime_type
+        - data_base64
+      properties:
+        tool:
+          type: string
+        filename:
+          type: string
+        mime_type:
+          type: string
+        data_base64:
+          type: string
+          description: Contenido del archivo codificado en base64
+
+    ToolSource:
+      type: object
+      description: |
+        Una cita de una tool que el agente usó para responder. `contexts` solo se
+        llena para retrieve_documents (RAG); el resto de los campos dependen de la
+        tool (ver src/dto/api_entities.py del servicio).
+      required:
+        - tool
+        - label
+      properties:
+        tool:
+          type: string
+        label:
+          type: string
+        input:
+          type: object
+          nullable: true
+        content:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          nullable: true
+        image_link_only:
+          type: boolean
+          default: false
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+        items:
+          type: array
+          items:
+            type: object
+        contexts:
+          type: array
+          items:
+            type: object
+            properties:
+              page_content:
+                type: string
+              metadata:
+                type: object
+              score:
+                type: number
 
     UserSessionsResponse:
       type: object
@@ -430,3 +540,63 @@ components:
                 type: string
               type:
                 type: string
+
+    EvaluateRequest:
+      type: object
+      description: Debe incluir al menos `trace_ids` o `session_id`.
+      properties:
+        trace_ids:
+          type: array
+          nullable: true
+          items:
+            type: string
+        session_id:
+          type: string
+          nullable: true
+        ground_truths:
+          type: object
+          nullable: true
+          description: "Mapa trace_id -> respuesta esperada, usado como `reference` en RAGAS"
+          additionalProperties:
+            type: string
+
+    MetricResult:
+      type: object
+      required:
+        - metric
+      properties:
+        metric:
+          type: string
+          example: "answer_relevancy"
+        score:
+          type: number
+          nullable: true
+
+    EvaluateResponse:
+      type: object
+      required:
+        - evaluation_id
+        - evaluated_at
+        - trace_ids
+        - llm_judge
+        - metrics
+      properties:
+        evaluation_id:
+          type: string
+        evaluated_at:
+          type: string
+          format: date-time
+        trace_ids:
+          type: array
+          items:
+            type: string
+        llm_judge:
+          type: string
+          example: "gpt-4o-mini"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricResult"
+        langsmith_url:
+          type: string
+          nullable: true

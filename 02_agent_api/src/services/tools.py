@@ -1,10 +1,10 @@
-import sys
 from typing import Dict, List, Tuple
 
 from langchain_core.tools import tool
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-from src.utils.environment import DEMO_MCP_SERVER_PATH, NEON_API_KEY
+from src.utils.environment import DEMO_MCP_SERVER_URL, NEON_API_KEY
+from src.utils.gcp_auth import GoogleIDTokenAuth, cloud_run_audience
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -44,24 +44,29 @@ DEMO_MCP_SERVER_NAME = "demo_mcp_server"
 
 
 async def load_demo_mcp_tools() -> Tuple[list, MultiServerMCPClient | None]:
-    """Conecta al demo MCP server (03_mcp_server) por stdio y retorna (tools, client).
-    Retorna ([], None) si DEMO_MCP_SERVER_PATH no está configurado.
+    """Conecta al demo MCP server (03_mcp_server, servicio HTTP propio — ver
+    DEPLOYMENT.md) y retorna (tools, client). Retorna ([], None) si
+    DEMO_MCP_SERVER_URL no está configurado.
 
-    Se ejecuta con sys.executable (el mismo intérprete/venv que corre esta API). Nota:
-    03_mcp_server tiene sus propias dependencias (ver su requirements.txt, incluye
-    langchain-qdrant/qdrant-client para retrieve_documents) que deben estar instaladas
-    en ese venv para que esta integración funcione.
+    Se autentica con un ID token de Google (GoogleIDTokenAuth), necesario
+    cuando 03_mcp_server corre como Cloud Run privado (--no-allow-unauthenticated);
+    en dev local contra un server sin auth, el token simplemente no se agrega
+    (fail-open, ver src/utils/gcp_auth.py).
     """
-    if not DEMO_MCP_SERVER_PATH:
-        logger.info("DEMO_MCP_SERVER_PATH no configurado — omitiendo integración con demo MCP server")
+    if not DEMO_MCP_SERVER_URL:
+        logger.info("DEMO_MCP_SERVER_URL no configurado — omitiendo integración con demo MCP server")
         return [], None
 
     client = MultiServerMCPClient(
         {
             DEMO_MCP_SERVER_NAME: {
-                "transport": "stdio",
-                "command": sys.executable,
-                "args": [DEMO_MCP_SERVER_PATH],
+                "transport": "streamable_http",
+                "url": DEMO_MCP_SERVER_URL,
+                # El endpoint incluye /mcp, pero Cloud Run exige como
+                # audiencia el origen del servicio (sin path).
+                "auth": GoogleIDTokenAuth(
+                    audience=cloud_run_audience(DEMO_MCP_SERVER_URL)
+                ),
             }
         }
     )

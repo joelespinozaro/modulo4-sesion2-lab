@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, func
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase
 
@@ -21,3 +21,6 @@ class History(Base):
     # Columna física sigue llamándose retrieved_contexts (evita una migración);
     # ahora guarda una lista de ToolSource (ver dto/api_entities.py), no solo RAG.
     sources = Column("retrieved_contexts", Text, nullable=True)
+    is_ok = Column(Boolean, nullable=True)
+    error_type_id = Column(Integer, ForeignKey("error_types.id"), nullable=True)
+    observations = Column(Text, nullable=True)

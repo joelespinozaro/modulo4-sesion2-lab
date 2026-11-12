@@ -19,6 +19,21 @@ class HistoryRepository:
     def get_by_trace_id(self, trace_id: str) -> Optional[History]:
         return self.db.query(History).filter(History.trace_id == trace_id).first()
 
+    def save_feedback(
+        self,
+        trace_id: str,
+        is_ok: bool,
+        error_type_id: Optional[int],
+        observations: Optional[str],
+    ) -> History:
+        record = self.get_by_trace_id(trace_id)
+        record.is_ok = is_ok
+        record.error_type_id = error_type_id
+        record.observations = observations
+        self.db.commit()
+        self.db.refresh(record)
+        return record
+
     def get_by_session_id(self, session_id: str, limit: int = 10) -> List[History]:
         return (
             self.db.query(History)

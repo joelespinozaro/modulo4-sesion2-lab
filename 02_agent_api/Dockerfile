@@ -11,6 +11,9 @@ COPY . .
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+# 03_mcp_server ya no va bundleado acá: es su propio servicio Cloud Run,
+# 02_agent_api se conecta por HTTP (ver DEMO_MCP_SERVER_URL en
+# src/utils/environment.py y DEPLOYMENT.md).
 
 EXPOSE 8080
 

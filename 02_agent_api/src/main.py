@@ -4,6 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.routes.chat import chat_router
+from src.routes.errors import router as errors_router
+from src.routes.feedback import router as feedback_router
+from src.routes.evaluate import router as evaluate_router
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -72,6 +75,9 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+app.include_router(errors_router)
+app.include_router(feedback_router)
+app.include_router(evaluate_router)
 
 if __name__ == "__main__":
     logger.info("Iniciando servidor en puerto 8080")

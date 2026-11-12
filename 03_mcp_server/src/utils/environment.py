@@ -1,5 +1,8 @@
 from decouple import config
 
+# Cloud Run inyecta PORT automáticamente; en local por defecto 8000.
+MCP_SERVER_PORT: int = config("PORT", default=8000, cast=int)
+
 POKEAPI_BASE_URL: str = config(
     "POKEAPI_BASE_URL", default="https://pokeapi.co/api/v2"
 )
