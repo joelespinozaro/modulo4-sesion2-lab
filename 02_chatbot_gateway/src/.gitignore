@@ -1,0 +1,5 @@
+# Endpoint del API de chatbot
+CHATBOT_API_URL=http://localhost:8080
+
+# Endpoint de WAHA
+WAHA_API_URL=http://localhost:3030

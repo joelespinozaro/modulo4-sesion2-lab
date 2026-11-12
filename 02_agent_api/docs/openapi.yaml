@@ -1,0 +1,244 @@
+openapi: "3.0.3"
+info:
+  title: Agente Simple
+  description: Agente conversacional con LangChain create_agent, FastAPI y PostgreSQL.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor local
+
+paths:
+  /api/chat:
+    post:
+      summary: Enviar un mensaje al agente
+      description: |
+        Recibe una pregunta del usuario y retorna la respuesta del agente.
+        Si `session_id` no se envía o viene vacío, se genera un UUID aleatorio.
+        El historial de conversación se recupera desde la base de datos usando el `session_id`.
+      operationId: chat
+      tags:
+        - chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            examples:
+              nueva_sesion:
+                summary: Nueva sesión (sin session_id)
+                value:
+                  question: "¿Cuál es la fecha de hoy?"
+                  user: "igorov"
+              sesion_existente:
+                summary: Sesión existente
+                value:
+                  question: "¿Y qué hora es?"
+                  user: "igorov"
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: Respuesta del agente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+              example:
+                user: igorov
+                answer: "Hoy es 25 de mayo de 2026."
+                session_id: "550e8400-e29b-41d4-a716-446655440000"
+                trace_id: "123e4567-e89b-12d3-a456-426614174000"
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/history/{session_id}:
+    get:
+      summary: Obtener historial de conversación
+      description: Retorna todos los mensajes de una sesión ordenados cronológicamente.
+      operationId: getHistory
+      tags:
+        - history
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID de sesión cuyo historial se desea consultar
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: Lista de mensajes del historial
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryItem"
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+  /api/sessions/{user}:
+    get:
+      summary: Obtener sesiones de un usuario
+      description: Retorna los session_id únicos de un usuario ordenados del más reciente al más antiguo.
+      operationId: getSessionsByUser
+      tags:
+        - history
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identificador del usuario
+          example: "igorov"
+      responses:
+        "200":
+          description: Lista de session_id del usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSessionsResponse"
+              example:
+                user: "igorov"
+                sessions:
+                  - "550e8400-e29b-41d4-a716-446655440000"
+                  - "123e4567-e89b-12d3-a456-426614174001"
+        "422":
+          description: Error de validación en el request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Error interno del servidor
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - question
+        - user
+      properties:
+        question:
+          type: string
+          description: Pregunta o mensaje del usuario
+          example: "¿Cuál es la fecha de hoy?"
+        user:
+          type: string
+          description: Identificador del usuario
+          example: igorov
+        session_id:
+          type: string
+          nullable: true
+          description: ID de sesión para continuar una conversación. Si está vacío o ausente, se genera uno aleatorio.
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ChatResponse:
+      type: object
+      required:
+        - user
+        - answer
+        - session_id
+        - trace_id
+      properties:
+        user:
+          type: string
+          description: Identificador del usuario
+          example: igorov
+        answer:
+          type: string
+          description: Respuesta generada por el agente
+          example: "Hoy es 25 de mayo de 2026."
+        session_id:
+          type: string
+          description: ID de sesión (generado si no se envió)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        trace_id:
+          type: string
+          description: ID único de trazabilidad generado por petición
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    HistoryItem:
+      type: object
+      required:
+        - question
+        - answer
+        - trace_id
+        - session_id
+        - created_at
+      properties:
+        question:
+          type: string
+          description: Pregunta del usuario
+        answer:
+          type: string
+          description: Respuesta del agente
+        trace_id:
+          type: string
+          description: ID único de trazabilidad
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        session_id:
+          type: string
+          description: ID de sesión
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        user:
+          type: string
+          nullable: true
+          description: Identificador del usuario
+          example: "igorov"
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha y hora de creación del registro
+
+    UserSessionsResponse:
+      type: object
+      required:
+        - user
+        - sessions
+      properties:
+        user:
+          type: string
+          description: Identificador del usuario
+          example: "igorov"
+        sessions:
+          type: array
+          description: Lista de session_id ordenados del más reciente al más antiguo
+          items:
+            type: string
+          example:
+            - "550e8400-e29b-41d4-a716-446655440000"
+            - "123e4567-e89b-12d3-a456-426614174001"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string

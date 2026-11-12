@@ -1,0 +1,47 @@
+# Variables de entorno (nunca deben ir en la imagen)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Testing y linting
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# IDEs
+.idea/
+.vscode/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
+
+# Documentación y archivos que no necesita el runtime
+*.md
+*.yaml
+!requirements.txt
+
+# Docker mismo
+Dockerfile
+.dockerignore

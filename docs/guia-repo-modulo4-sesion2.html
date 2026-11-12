@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Módulo 4 · Sesión 2 · Guía del repositorio del laboratorio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --paper:#F0F1EA;
+  --paper-raised:#FBFBF8;
+  --ink:#161B17;
+  --ink-dim:#565F58;
+  --ink-faint:#8A9189;
+  --line:#D7D8CC;
+  --line-strong:#B9BBAC;
+
+  --brain:#B8501C;      /* LLM / razonamiento */
+  --brain-tint:#F2E1D2;
+  --brain-tint-strong:#E9C6A6;
+  --tool:#1E6E68;       /* herramientas / datos / memoria */
+  --tool-tint:#DCEAE6;
+  --tool-tint-strong:#B9D6CE;
+  --human:#4B4E96;      /* humano / control / decisión */
+  --human-tint:#E2E2F1;
+  --human-tint-strong:#C6C6E6;
+
+  --code-bg:#1A1F1B;
+  --code-fg:#DCE6DC;
+  --code-dim:#7C8A7D;
+  --code-brain:#E39A6B;
+  --code-tool:#7FC4BA;
+  --code-human:#A9ADE0;
+
+  --shadow: 0 1px 2px rgba(20,25,20,.04), 0 8px 24px -12px rgba(20,25,20,.10);
+  --radius: 14px;
+
+  --font-display:'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-body:'Public Sans', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181A;
+    --paper-raised:#1B2022;
+    --ink:#E9ECE6;
+    --ink-dim:#A3ABA2;
+    --ink-faint:#6C756C;
+    --line:#2B322D;
+    --line-strong:#3C453D;
+
+    --brain:#E08A4F;
+    --brain-tint:rgba(224,138,79,.14);
+    --brain-tint-strong:rgba(224,138,79,.28);
+    --tool:#5FBBB0;
+    --tool-tint:rgba(95,187,176,.13);
+    --tool-tint-strong:rgba(95,187,176,.26);
+    --human:#9498E0;
+    --human-tint:rgba(148,152,224,.15);
+    --human-tint-strong:rgba(148,152,224,.30);
+
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181A;
+  --paper-raised:#1B2022;
+  --ink:#E9ECE6;
+  --ink-dim:#A3ABA2;
+  --ink-faint:#6C756C;
+  --line:#2B322D;
+  --line-strong:#3C453D;
+
+  --brain:#E08A4F;
+  --brain-tint:rgba(224,138,79,.14);
+  --brain-tint-strong:rgba(224,138,79,.28);
+  --tool:#5FBBB0;
+  --tool-tint:rgba(95,187,176,.13);
+  --tool-tint-strong:rgba(95,187,176,.26);
+  --human:#9498E0;
+  --human-tint:rgba(148,152,224,.15);
+  --human-tint-strong:rgba(148,152,224,.30);
+
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation:none !important; transition:none !important} }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{max-width:1120px; margin:0 auto; padding:0 28px}
+
+/* ============ NAV ============ */
+.topnav{
+  position:sticky; top:0; z-index:40;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.topnav-inner{
+  max-width:1120px; margin:0 auto; padding:0 28px;
+  display:flex; align-items:center; gap:18px;
+  height:52px;
+}
+.brandmark{
+  font-family:var(--font-mono); font-size:12px; font-weight:600;
+  color:var(--ink-dim); letter-spacing:.04em; white-space:nowrap;
+  border-right:1px solid var(--line); padding-right:16px; margin-right:2px;
+}
+.navlinks{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{
+  font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint);
+  text-decoration:none; white-space:nowrap; padding:7px 10px; border-radius:8px;
+  transition:background .15s, color .15s;
+}
+.navlinks a:hover, .navlinks a:focus-visible{color:var(--ink); background:var(--line)}
+
+/* ============ HERO ============ */
+.hero{padding:68px 0 46px; border-bottom:1px solid var(--line)}
+.hero-eyebrow{
+  font-family:var(--font-mono); font-size:12px; color:var(--brain);
+  letter-spacing:.09em; text-transform:uppercase; font-weight:600;
+  display:flex; align-items:center; gap:10px; margin-bottom:18px;
+}
+.hero-eyebrow::before{content:""; width:26px; height:1px; background:var(--brain)}
+h1.hero-title{
+  font-family:var(--font-display); font-weight:600; font-optical-sizing:auto;
+  font-size:clamp(2.1rem, 5vw, 3.4rem); line-height:1.08; margin:0 0 20px;
+  text-wrap:balance; letter-spacing:-.01em;
+}
+h1.hero-title em{font-style:italic; color:var(--brain)}
+.hero-sub{
+  font-size:1.09rem; color:var(--ink-dim); max-width:62ch; margin:0 0 26px;
+  text-wrap:pretty;
+}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px}
+.tag{
+  font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim);
+  border:1px solid var(--line-strong); padding:5px 11px; border-radius:100px;
+}
+
+/* ============ SECTION SCAFFOLD ============ */
+section.mod{padding:64px 0; border-bottom:1px solid var(--line); scroll-margin-top:66px}
+section.mod:last-of-type{border-bottom:none}
+.mod-head{display:flex; gap:18px; align-items:baseline; margin-bottom:8px}
+.mod-num{
+  font-family:var(--font-mono); font-size:13px; color:var(--ink-faint);
+  border:1px solid var(--line-strong); border-radius:7px; padding:3px 8px;
+  flex:none;
+}
+h2.mod-title{
+  font-family:var(--font-display); font-weight:600; font-size:clamp(1.5rem, 3.2vw, 2rem);
+  margin:0; letter-spacing:-.01em; text-wrap:balance;
+}
+.mod-kicker{
+  font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint);
+  margin:0 0 26px 0; padding-left:46px;
+}
+.mod-body{padding-left:0}
+.lede{font-size:1.04rem; max-width:66ch; color:var(--ink); margin:0 0 22px}
+.lede strong{font-weight:700}
+
+.why{
+  display:flex; gap:14px; background:var(--brain-tint); border:1px solid var(--brain-tint-strong);
+  border-radius:var(--radius); padding:16px 20px; margin:0 0 30px; max-width:66ch;
+}
+.why .lbl{font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--brain); text-transform:uppercase; letter-spacing:.06em; flex:none; padding-top:2px}
+.why p{margin:0; font-size:.96rem; color:var(--ink)}
+
+.clarify{
+  display:flex; gap:14px; background:var(--human-tint); border:1px solid var(--human-tint-strong);
+  border-radius:var(--radius); padding:16px 20px; margin:22px 0 30px; max-width:66ch;
+}
+.clarify .lbl{font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--human); text-transform:uppercase; letter-spacing:.06em; flex:none; padding-top:2px}
+.clarify p{margin:0 0 8px; font-size:.96rem; color:var(--ink)}
+.clarify p:last-child{margin-bottom:0}
+
+/* ============ DIAGRAM FIGURE ============ */
+figure.diagram{
+  margin:0 0 14px; background:var(--paper-raised); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;
+}
+figure.diagram .svgbox{
+  padding:26px 22px 10px; overflow-x:auto; position:relative;
+}
+figure.diagram svg{display:block; margin:0 auto; max-width:100%; height:auto; color:var(--ink)}
+
+.expand-btn{
+  position:absolute; top:10px; right:10px; z-index:2;
+  width:32px; height:32px; border-radius:9px; padding:0;
+  background:var(--paper-raised); border:1px solid var(--line-strong);
+  color:var(--ink-dim); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; opacity:.6; transition:opacity .15s, color .15s, border-color .15s;
+}
+.expand-btn:hover, .expand-btn:focus-visible{opacity:1; color:var(--brain); border-color:var(--brain)}
+.expand-btn svg{width:16px; height:16px}
+
+.lightbox{
+  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:4vh 4vw; background:rgba(10,14,10,.74); opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .16s ease;
+}
+.lightbox.open{opacity:1; visibility:visible; pointer-events:auto}
+.lightbox-inner{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+  max-width:96vw; max-height:92vh; width:min(1400px, 96vw); display:flex; flex-direction:column; overflow:hidden; position:relative;
+}
+.lightbox-svg{padding:44px 48px 16px; overflow:auto; display:flex; align-items:center; justify-content:center; flex:1; min-height:0}
+.lightbox-svg svg{width:100%; height:auto; max-height:76vh; color:var(--ink)}
+.lightbox-caption{font-size:.98rem; color:var(--ink-dim); padding:16px 48px 26px; border-top:1px dashed var(--line); max-width:90ch}
+.lightbox-caption b{color:var(--ink)}
+.lightbox-close{
+  position:absolute; top:16px; right:16px; z-index:3;
+  width:38px; height:38px; border-radius:10px; padding:0;
+  background:var(--paper); border:1px solid var(--line-strong); color:var(--ink-dim);
+  cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px;
+}
+.lightbox-close:hover, .lightbox-close:focus-visible{color:var(--brain); border-color:var(--brain)}
+@media (prefers-reduced-motion: reduce){ .lightbox{transition:none} }
+figcaption{
+  font-size:.85rem; color:var(--ink-dim); padding:12px 22px 16px; border-top:1px dashed var(--line);
+}
+figcaption b{color:var(--ink); font-weight:600}
+
+/* diagram text helpers */
+.d-lbl{font-family:var(--font-mono); font-size:10.5px}
+.d-title{font-family:var(--font-body); font-weight:700; font-size:12.5px}
+.d-sub{font-family:var(--font-body); font-size:10px; fill:var(--ink-dim)}
+
+.icon{width:1em;height:1em; display:inline-block; vertical-align:-.15em}
+
+/* ============ LEGEND ============ */
+.legend{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:10px;
+  margin:26px 0 0;
+}
+.legend-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border:1px solid var(--line); border-radius:10px; background:var(--paper-raised);
+}
+.legend-item svg{width:22px; height:22px; flex:none}
+.legend-item .t{font-size:.82rem; font-weight:600}
+.legend-item .s{font-size:.72rem; color:var(--ink-faint); display:block}
+.legend-item.c-brain svg{color:var(--brain)}
+.legend-item.c-tool svg{color:var(--tool)}
+.legend-item.c-human svg{color:var(--human)}
+
+/* ============ GRIDS / CARDS ============ */
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+@media (max-width:760px){ .grid-2,.grid-4{grid-template-columns:1fr} }
+
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 20px; box-shadow:var(--shadow);
+}
+.card-head{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+.card-head svg{width:24px; height:24px; flex:none}
+.card-head h3{font-size:1rem; margin:0; font-weight:700}
+.card p{font-size:.87rem; color:var(--ink-dim); margin:0 0 10px}
+.card.brain{border-top:3px solid var(--brain)}
+.card.brain .card-head svg{color:var(--brain)}
+.card.tool{border-top:3px solid var(--tool)}
+.card.tool .card-head svg{color:var(--tool)}
+.card.human{border-top:3px solid var(--human)}
+.card.human .card-head svg{color:var(--human)}
+
+/* ============ CODE ============ */
+pre.code{
+  background:var(--code-bg); color:var(--code-fg); border-radius:10px;
+  padding:14px 16px; font-family:var(--font-mono); font-size:12.5px; line-height:1.6;
+  overflow-x:auto; margin:0;
+}
+pre.code .c1{color:var(--code-dim)}
+pre.code .c2{color:var(--code-brain)}
+pre.code .c3{color:var(--code-tool)}
+pre.code .c4{color:var(--code-human)}
+.card pre.code{margin-top:10px}
+
+/* ============ TABLE ============ */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised); box-shadow:var(--shadow)}
+table.fw{width:100%; border-collapse:collapse; font-size:.88rem; min-width:640px}
+table.fw th{
+  text-align:left; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--ink-faint); font-weight:600;
+  padding:12px 16px; border-bottom:1px solid var(--line-strong);
+}
+table.fw td{padding:14px 16px; border-bottom:1px solid var(--line); vertical-align:top}
+table.fw tr:last-child td{border-bottom:none}
+table.fw .fwname{font-weight:700; display:flex; align-items:center; gap:8px}
+table.fw .fwname svg{width:18px;height:18px; color:var(--brain); flex:none}
+table.fw td.dim{color:var(--ink-dim)}
+
+/* ============ TRACE STRIPS ============ */
+.trace{border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:12px; background:var(--paper-raised)}
+.trace-head{
+  font-family:var(--font-mono); font-size:11px; padding:9px 14px; background:var(--line);
+  color:var(--ink-dim); display:flex; justify-content:space-between;
+}
+.trace-body{padding:12px 14px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.chip{
+  font-family:var(--font-mono); font-size:11.5px; padding:6px 10px; border-radius:8px;
+  border:1px solid var(--line-strong); display:inline-flex; align-items:center; gap:6px;
+}
+.chip svg{width:14px;height:14px}
+.chip.user{background:var(--human-tint); border-color:var(--human-tint-strong); color:var(--human)}
+.chip.llm{background:var(--brain-tint); border-color:var(--brain-tint-strong); color:var(--brain)}
+.chip.tool{background:var(--tool-tint); border-color:var(--tool-tint-strong); color:var(--tool)}
+.arr{color:var(--ink-faint); font-size:13px}
+
+/* ============ MISC ============ */
+.split-label{
+  font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--ink-faint); margin-bottom:10px; display:block;
+}
+.foot{padding:52px 0 70px; text-align:left}
+.foot-inner{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px}
+.foot h2{font-family:var(--font-display); font-size:1.7rem; margin:0 0 6px; font-weight:600}
+.foot p{color:var(--ink-dim); margin:0; font-size:.92rem}
+.foot .credit{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); text-align:right}
+.foot .credit a{color:var(--brain); text-decoration:none}
+
+.recap{display:flex; flex-wrap:wrap; gap:8px; margin:28px 0}
+.recap span{
+  font-family:var(--font-mono); font-size:12px; padding:8px 14px; border-radius:100px;
+  border:1px solid var(--line-strong); color:var(--ink-dim);
+}
+
+/* ============ QUIZ ============ */
+.quiz-score{
+  display:flex; align-items:center; gap:14px; margin-bottom:26px; padding:14px 20px;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  font-family:var(--font-mono); font-size:.85rem; color:var(--ink-dim); flex-wrap:wrap;
+}
+.quiz-score b{color:var(--ink); font-size:1rem; font-family:var(--font-body)}
+.quiz-score .bar{flex:1; min-width:120px; height:8px; border-radius:100px; background:var(--line); overflow:hidden}
+.quiz-score .bar-fill{height:100%; width:0%; background:var(--brain); transition:width .25s ease}
+.quiz-reset{
+  font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); background:none;
+  border:1px solid var(--line-strong); border-radius:100px; padding:6px 14px; cursor:pointer;
+}
+.quiz-reset:hover{color:var(--brain); border-color:var(--brain)}
+.qcard{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  padding:20px 22px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+.qcard .qnum{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); letter-spacing:.05em}
+.qcard h3{font-size:1rem; margin:6px 0 14px; font-weight:700; text-wrap:balance}
+.qopts{display:flex; flex-direction:column; gap:8px}
+.qopt{
+  text-align:left; font-family:var(--font-body); font-size:.92rem; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line-strong); border-radius:10px;
+  padding:10px 14px; cursor:pointer; transition:border-color .15s, background .15s;
+}
+.qopt:hover:not(:disabled){border-color:var(--brain)}
+.qopt:disabled{cursor:default}
+.qopt.correct{background:var(--tool-tint); border-color:var(--tool); color:var(--tool)}
+.qopt.incorrect{background:var(--brain-tint); border-color:var(--brain); color:var(--brain)}
+.qopt.reveal{border-color:var(--tool); border-style:dashed}
+.qexplain{
+  margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);
+  font-size:.86rem; color:var(--ink-dim); display:none;
+}
+.qexplain.show{display:block}
+.qexplain b{color:var(--ink)}
+.quiz-result{
+  margin-top:8px; padding:18px 22px; border-radius:var(--radius); font-size:.95rem;
+  border:1px solid var(--line); background:var(--paper-raised); display:none;
+}
+.quiz-result.show{display:block}
+
+/* ============ AGREGADOS M4 S1: artefactos interactivos con los mismos tokens ============ */
+.mod-body > p{max-width:66ch}
+.mod-body > .why,.mod-body > .clarify,.mod-body > .note{margin-top:22px}
+.why .lbl,.clarify .lbl,.note .lbl{flex:0 0 112px}
+.note{display:flex; gap:14px; background:var(--tool-tint); border:1px solid var(--tool-tint-strong); border-radius:var(--radius); padding:16px 20px; margin:22px 0 30px; max-width:66ch}
+.note .lbl{font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--tool); text-transform:uppercase; letter-spacing:.06em; padding-top:2px}
+.note p{margin:0; font-size:.96rem; color:var(--ink)}
+@media (max-width:760px){ .why,.clarify,.note{flex-direction:column; gap:6px} .why .lbl,.clarify .lbl,.note .lbl{flex:none} }
+.hl{font-weight:700; color:var(--ink)}
+code.i{font-family:var(--font-mono); font-size:.86em; background:var(--line); padding:1px 6px; border-radius:5px}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:0 0 30px}
+.grid-2{margin:0 0 26px}
+@media (max-width:760px){ .grid-3{grid-template-columns:1fr} }
+.card h3{font-size:1rem; margin:2px 0 6px; font-weight:700; text-wrap:balance}
+.card .split-label{margin-bottom:2px}
+.card p:last-child{margin-bottom:0}
+.tablewrap{margin:0 0 26px}
+
+figure.art{margin:0 0 18px}
+.art-head{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; padding:16px 20px 0}
+.art-num{font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--brain); letter-spacing:.07em; text-transform:uppercase}
+.art-name{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim)}
+.art-body{padding:14px 20px 2px}
+.art .svgbox{border:1px solid var(--line); border-radius:12px; background:var(--paper); padding:30px 8px 8px; margin:0 0 12px}
+.art .svgbox > div > svg{min-width:660px}
+.why.stack,.clarify.stack,.note.stack{flex-direction:column; gap:6px}
+.stack .lbl{flex:none !important}
+.slabel{position:absolute; top:9px; left:12px; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); letter-spacing:.07em; text-transform:uppercase}
+.tabs{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px}
+.tabs button{font-family:var(--font-mono); font-size:11.5px; padding:6px 12px; border-radius:100px; border:1px solid var(--line-strong); background:none; color:var(--ink-dim); cursor:pointer; transition:background .15s,color .15s}
+.tabs button:hover{color:var(--brain); border-color:var(--brain)}
+.tabs button.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+pre.code.term{margin:0 0 12px; white-space:pre-wrap; min-height:52px}
+pre.code .lab{display:block; color:var(--code-dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px}
+pre.code .good{color:var(--code-tool)} pre.code .bad{color:var(--code-brain)} pre.code .warnc{color:var(--code-human)}
+.cap{font-size:.9rem; color:var(--ink-dim); padding:12px 0 16px; border-top:1px dashed var(--line); min-height:66px}
+.cap .ct{display:block; color:var(--ink); font-weight:700; margin-bottom:3px}
+.actrl{display:flex; align-items:center; gap:10px; padding:12px 20px; border-top:1px solid var(--line); background:var(--paper); flex-wrap:wrap}
+.dots{display:flex; gap:5px; flex:1; flex-wrap:wrap}
+.dots i{width:16px; height:6px; border-radius:3px; background:var(--line-strong); cursor:pointer; transition:width .2s,background .2s}
+.dots i.done{background:var(--brain-tint-strong)}
+.dots i.on{background:var(--brain); width:28px}
+.sc{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
+.abtn{font-family:var(--font-mono); font-size:11.5px; padding:7px 15px; border-radius:100px; border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink); cursor:pointer}
+.abtn:hover:not(:disabled){border-color:var(--brain); color:var(--brain)}
+.abtn.pri{background:var(--brain); border-color:var(--brain); color:var(--paper-raised)}
+.abtn.pri:hover:not(:disabled){color:var(--paper-raised); filter:brightness(1.08)}
+.abtn:disabled{opacity:.4; cursor:default}
+.tabs button:focus-visible,.abtn:focus-visible,.mx .cell:focus-visible,.dots i:focus-visible,.navlinks a:focus-visible,.qopt:focus-visible,.gitem button:focus-visible{outline:2px solid var(--brain); outline-offset:2px}
+.gauges{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:0 0 12px}
+.gau{border:1px solid var(--line); border-radius:12px; padding:8px 6px; text-align:center; background:var(--paper)}
+.gau svg{width:62px; height:62px; display:block; margin:0 auto}
+.gv{font-family:var(--font-mono); font-size:15px; font-weight:600; fill:var(--ink)}
+.gname{display:block; font-family:var(--font-mono); font-size:10px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em; margin-top:2px}
+@media (max-width:760px){ .gauges{grid-template-columns:repeat(2,1fr)} }
+.mx{display:grid; grid-template-columns:130px 1fr 1fr; gap:8px; margin:0 0 12px}
+.mx .hd{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; display:flex; align-items:center; justify-content:center; text-align:center; padding:4px}
+.mx .cell{text-align:left; background:var(--paper); border:1px solid var(--line-strong); border-radius:12px; padding:12px 14px; font-family:var(--font-body); font-size:.86rem; color:var(--ink-dim); cursor:pointer; transition:border-color .15s,background .15s}
+.mx .cell b{display:block; color:var(--ink); font-size:.95rem; margin-bottom:2px}
+.mx .cell:hover{border-color:var(--brain)}
+.mx .cell.on{background:var(--brain-tint); border-color:var(--brain)}
+@media (max-width:760px){ .mx{grid-template-columns:1fr} .mx .hd{display:none} }
+.code-map{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:12px; margin:0 0 12px}
+.code-pane{position:relative; min-width:0}
+.code-map pre.code{margin:0; min-height:210px; padding-top:42px}
+.copy-code{position:absolute; top:9px; right:9px; z-index:2; font-family:var(--font-mono); font-size:11px; padding:5px 11px; border-radius:100px; border:1px solid var(--code-dim); background:var(--code-bg); color:var(--code-fg); cursor:pointer}
+.copy-code.done{color:var(--code-tool); border-color:var(--code-tool)}
+.lab-note{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; justify-content:center}
+.lab-note .k{font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--brain); text-transform:uppercase; letter-spacing:.06em}
+.lab-note b{display:block; margin:4px 0; color:var(--ink); font-size:1rem}
+.lab-note p{margin:0; font-size:.88rem; color:var(--ink-dim)}
+@media (max-width:760px){ .code-map{grid-template-columns:1fr} }
+.iconrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin:0 0 24px}
+.iconcard{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--paper-raised); box-shadow:var(--shadow)}
+.iconcard .ico{color:var(--brain); flex:none; padding-top:2px}
+.iconcard b{display:block; font-size:.9rem; color:var(--ink)}
+.iconcard span{font-size:.84rem; color:var(--ink-dim)}
+.iconcard > span:last-child{flex:1; min-width:0}
+input.gsearch{width:100%; font-family:var(--font-mono); font-size:.86rem; padding:8px 10px; border:1px solid var(--line-strong); border-radius:8px; background:var(--paper); color:var(--ink); margin-top:4px}
+input[type=range]{width:100%; accent-color:var(--brain)}
+.rlabel{display:block; font-size:.88rem; color:var(--ink-dim); margin:0 0 8px}
+.rlabel b{color:var(--ink); font-family:var(--font-mono)}
+.repo-link{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; color:var(--tool); border:1px solid var(--tool); border-radius:100px; padding:8px 15px; text-decoration:none; margin:0 0 24px}
+.repo-link:hover{background:var(--tool-tint)}
+.ggrid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px}
+@media (max-width:760px){ .ggrid{grid-template-columns:1fr} }
+.gitem{border:1px solid var(--line); border-radius:10px; background:var(--paper-raised)}
+.gitem button{width:100%; display:flex; gap:10px; align-items:baseline; background:none; border:0; padding:10px 14px; cursor:pointer; text-align:left; color:var(--ink); font-family:var(--font-body)}
+.gitem .gt{font-weight:700; font-size:.92rem}
+.gitem .gs{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); flex:1}
+.gitem .gx{font-family:var(--font-mono); color:var(--brain)}
+.gitem .gd{display:none; padding:0 14px 12px; font-size:.86rem; color:var(--ink-dim)}
+.gitem.open .gd{display:block}
+.gitem.open .gx{transform:rotate(45deg)}
+.gnone{color:var(--ink-faint); font-size:.9rem; padding:10px}
+@media (max-width:640px){ .wrap,.topnav-inner{padding:0 18px} .mod-kicker{padding-left:0} }
+</style>
+<style>
+/* navegación ampliada: flechas, índice desplegable y sección activa */
+.topnav-inner{gap:8px}
+.navlinks{flex:1;min-width:0;scroll-behavior:smooth}
+.navlinks.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px);mask-image:linear-gradient(90deg,transparent,#000 28px)}
+.navlinks.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.navlinks.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+.navlinks a.on{color:var(--brain);background:var(--brain-tint);font-weight:600}
+.navarr{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line-strong);background:var(--paper-raised);color:var(--ink);font-size:17px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 2px}
+.navarr:disabled{opacity:.3;cursor:default}
+.navarr:not(:disabled):hover{border-color:var(--brain);color:var(--brain)}
+.navidx{flex:none;font-family:var(--font-mono);font-size:11.5px;font-weight:600;border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.navidx span{opacity:.7;font-weight:400;margin-left:4px}
+.navidx[aria-expanded="true"]{background:var(--brain);border-color:var(--brain)}
+.navpanel{border-top:1px solid var(--line);background:var(--paper);box-shadow:0 18px 40px -20px rgba(0,0,0,.25)}
+.navpanel-inner{max-width:1120px;margin:0 auto;padding:18px 28px 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.npcol{display:flex;flex-direction:column;gap:2px}
+.npg{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--brain);font-weight:700;margin-bottom:6px}
+.npcol a{font-size:13.5px;color:var(--ink-dim);text-decoration:none;padding:6px 8px;border-radius:8px}
+.npcol a:hover,.npcol a.on{background:var(--brain-tint);color:var(--ink)}
+.npcol a.on{font-weight:700}
+@media (max-width:820px){.navpanel-inner{grid-template-columns:1fr 1fr}.navarr{display:none}.brandmark{display:none}}
+@media (max-width:480px){.navpanel-inner{grid-template-columns:1fr;max-height:70vh;overflow:auto}}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="brandmark">MÓD.04 · SESIÓN 2 · REPO</span>
+    <button class="navarr" id="nav-l" type="button" aria-label="Ver secciones anteriores">‹</button>
+    <div class="navlinks" id="navlinks">
+      <a href="#r0">01 El problema</a>
+      <a href="#r1">02 Arquitectura</a>
+      <a href="#r2">03 Carpetas</a>
+      <a href="#r3">04 Ramas</a>
+      <a href="#r4">05 Un mensaje en el código</a>
+      <a href="#r5">06 Puesta en marcha</a>
+      <a href="#r6">07 Problemas frecuentes</a>
+      <a href="#r7">08 Entregable</a>
+    </div>
+    <button class="navarr" id="nav-r" type="button" aria-label="Ver secciones siguientes">›</button>
+    <button class="navidx" id="nav-idx" type="button" aria-expanded="false" aria-controls="nav-panel">Índice <span id="nav-pos">01/08</span></button>
+  </div>
+  <div class="navpanel" id="nav-panel" hidden>
+    <div class="navpanel-inner">
+      <div class="npcol"><span class="npg">Contexto</span><a href="#r0">01 El problema</a><a href="#r1">02 Arquitectura</a></div>
+      <div class="npcol"><span class="npg">El código</span><a href="#r2">03 Mapa de carpetas</a><a href="#r3">04 Una rama por parte</a><a href="#r4">05 Un mensaje dentro del código</a></div>
+      <div class="npcol"><span class="npg">Manos a la obra</span><a href="#r5">06 Puesta en marcha</a><a href="#r6">07 Problemas frecuentes</a></div>
+      <div class="npcol"><span class="npg">Cierre</span><a href="#r7">08 Entregable</a></div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">AI Solution Architect · Módulo 4 · Sesión 2 · Guía del repositorio</div>
+    <h1 class="hero-title">Qué hay en el repo <em>y por qué</em><br>está armado así</h1>
+    <p class="hero-sub">Antes de escribir un comando conviene saber qué vas a levantar. Esta guía explica el repositorio <b>modulo4-sesion2-lab</b>: qué problema resuelve, cómo se conectan sus piezas, qué hace cada carpeta y qué agrega cada rama. La guía de la sesión explica los conceptos. Esta explica <b>el sistema que vas a construir</b>.</p>
+    <div class="hero-meta">
+      <span class="tag">8 secciones</span>
+      <span class="tag">3 artefactos interactivos</span>
+      <span class="tag">5 ramas</span>
+      <span class="tag">Joel Espinoza Rojas</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="mod" id="r0">
+  <div class="mod-head"><span class="mod-num">01</span><h2 class="mod-title">Un asistente que ya funciona, ahora frente a alumnos reales</h2></div>
+  <p class="mod-kicker">El problema · Contexto</p>
+  <div class="mod-body">
+  <p class="lede">El instituto ya tiene un asistente que responde sobre programas, precios, horarios y matrícula con RAG. Funcionaba en un notebook. El repo resuelve <b>la siguiente pregunta</b>: ¿qué hace falta para que cientos de alumnos le escriban por WhatsApp sin que se rompa, se filtre un dato personal o se dispare el costo?</p>
+  <div class="grid-3">
+    <div class="card human"><span class="split-label">Canal</span><h3>Llegar por WhatsApp</h3><p>Los alumnos no abren una web: escriben por WhatsApp. Hace falta un puente entre WhatsApp y el agente.</p></div>
+    <div class="card brain"><span class="split-label">Contexto</span><h3>No saturar el prompt</h3><p>Cada área (IA, ciberseguridad, desarrollo, UX) tiene sus reglas. Si todas viajan en cada mensaje, sube el costo y baja la precisión.</p></div>
+    <div class="card tool"><span class="split-label">Control</span><h3>Saber qué pasó</h3><p>Cuánto tardó, cuántos tokens usó, si el proveedor falló y si hubo que reintentar.</p></div>
+    <div class="card human"><span class="split-label">Seguridad</span><h3>Bloquear ataques y cuidar datos</h3><p>Alguien intentará cambiar las reglas del agente. Otro pegará su DNI o una API key.</p></div>
+    <div class="card tool"><span class="split-label">Calidad</span><h3>Detectar regresiones</h3><p>Un cambio en una regla de seguridad no puede llegar a producción sin una prueba que lo confirme.</p></div>
+    <div class="card brain"><span class="split-label">Producción</span><h3>Desplegar y medir</h3><p>Opcional: llevarlo a la nube, con un servicio gestionado de seguridad y evaluación continua.</p></div>
+  </div>
+  <div class="why"><span class="lbl">La idea central</span><p>Ninguno de estos problemas se arregla con un modelo más grande. Se arreglan con <b>ingeniería alrededor del modelo</b>: canales, middlewares, guardrails y pruebas. Por eso el repo crece por capas, una por rama.</p></div>
+  </div>
+</section>
+
+<section class="mod" id="r1">
+  <div class="mod-head"><span class="mod-num">02</span><h2 class="mod-title">Tres servicios propios, un contenedor y dos bases de datos</h2></div>
+  <p class="mod-kicker">Arquitectura · Contexto</p>
+  <div class="mod-body">
+  <p class="lede">El sistema tiene tres servicios que escribes o modificas tú (<b>Gateway</b>, <b>Agent API</b> y, desde la parte 4, el <b>MCP server</b>), un contenedor que no tocas (<b>WAHA</b>) y dos bases de datos que ya conoces de la sesión de RAG. Elige una rama para ver qué se enciende.</p>
+  <figure class="diagram art"><div class="art-head"><span class="art-num">Artefacto 01</span><span class="art-name">La arquitectura crece rama por rama</span></div>
+    <div class="art-body">
+      <div class="tabs" id="ar-tabs"><button class="on" data-k="0">main</button><button data-k="1">parte-2-skills</button><button data-k="2">parte-3-hooks</button><button data-k="3">parte-4-guardrails</button><button data-k="4">parte-5-produccion</button></div>
+      <div class="svgbox"><span class="slabel" id="ar-mode"></span><div id="ar-stage"></div></div>
+      <div class="cap" id="ar-cap"></div>
+    </div></figure>
+  <div class="tablewrap"><table class="fw">
+    <tr><th>Pieza</th><th>Puerto</th><th>Qué hace</th><th>La escribes tú</th></tr>
+    <tr><td><b>WAHA</b></td><td>3030</td><td>Expone un número de WhatsApp como API REST y avisa cada mensaje por webhook</td><td>No, es un contenedor Docker</td></tr>
+    <tr><td><b>02_chatbot_gateway</b></td><td>8090</td><td>Recibe el webhook, marca leído, muestra «escribiendo…», llama al agente y envía la respuesta</td><td>Sí, FastAPI</td></tr>
+    <tr><td><b>02_agent_api</b></td><td>8080</td><td>El agente: guardrails, middlewares, skills, LLM y tools</td><td>Sí, FastAPI + LangChain</td></tr>
+    <tr><td><b>03_mcp_server</b></td><td>stdio</td><td>Publica las skills (SKILL.md) y la búsqueda en Qdrant como recursos y tools MCP</td><td>Sí, desde la parte 4</td></tr>
+    <tr><td><b>PostgreSQL</b></td><td>5432</td><td>Historial de cada conversación</td><td>No, ya está desde RAG</td></tr>
+    <tr><td><b>Qdrant</b></td><td>nube</td><td>Documentos del instituto en vectores</td><td>No, ya está desde RAG</td></tr>
+  </table></div>
+  </div>
+</section>
+
+<section class="mod" id="r2">
+  <div class="mod-head"><span class="mod-num">03</span><h2 class="mod-title">Cada carpeta es un servicio, y cada servicio tiene la misma forma</h2></div>
+  <p class="mod-kicker">Mapa de carpetas · El código</p>
+  <div class="mod-body">
+  <p class="lede">Los tres servicios siguen el mismo patrón por capas: <b>routes</b> recibe la petición, <b>controllers</b> la valida, <b>services</b> tiene la lógica y <b>repositories</b> habla con la base de datos. Si entiendes una carpeta, entiendes las tres.</p>
+  <figure class="diagram art"><div class="art-head"><span class="art-num">Artefacto 02</span><span class="art-name">Las carpetas del repo · qué vive en cada una</span></div>
+    <div class="art-body">
+      <div class="tabs" id="fd-tabs"><button class="on" data-k="root">Raíz</button><button data-k="setup">01_data_setup</button><button data-k="agent">02_agent_api</button><button data-k="gw">02_chatbot_gateway</button><button data-k="mcp">03_mcp_server</button></div>
+      <pre class="code term" id="fd-llm"></pre>
+      <div class="cap" id="fd-cap"></div>
+    </div></figure>
+  <div class="note"><span class="lbl">Dónde mirar primero</span><p>Casi todo lo de esta sesión pasa en un archivo: <code class="i">02_agent_api/src/services/agent_service.py</code>. Ahí se arma el agente con <code class="i">create_agent</code> y se le pasa la lista de middlewares. Compara ese archivo entre ramas y verás la sesión entera.</p></div>
+  </div>
+</section>
+
+<section class="mod" id="r3">
+  <div class="mod-head"><span class="mod-num">04</span><h2 class="mod-title">Una rama por parte, y cada una suma una capa</h2></div>
+  <p class="mod-kicker">Ramas · El código</p>
+  <div class="mod-body">
+  <p class="lede">Las ramas están en fila: cada una parte de la anterior y agrega una sola cosa. Así puedes ver exactamente qué cambió con <code class="i">git diff</code>, en lugar de buscar la diferencia a ojo.</p>
+  <div class="tablewrap"><table class="fw">
+    <tr><th>Rama</th><th>Qué agrega</th><th>Archivos clave</th><th>Cómo sabes que funciona</th></tr>
+    <tr><td><b>main</b><br>Parte 1</td><td>Agente con RAG conectado a WhatsApp</td><td><code class="i">02_chatbot_gateway/src/routes/waha_router.py</code></td><td>Escribes desde el celular y responde</td></tr>
+    <tr><td><b>parte-2-skills</b></td><td><code class="i">SkillMiddleware</code> y la tool <code class="i">load_skill</code></td><td><code class="i">agent_service.py</code> (lista SKILLS)</td><td><code class="i">load_skill</code> aparece en el log solo con preguntas de ruta</td></tr>
+    <tr><td><b>parte-3-hooks</b></td><td>Logging, TokenBudget, SafetyGuard y Retry</td><td><code class="i">src/services/middleware/</code></td><td>Logs de ida y vuelta y el corte con <code class="i">TOKEN_BUDGET</code> bajo</td></tr>
+    <tr><td><b>parte-4-guardrails</b></td><td>8 capas de guardrails, skills por MCP y tests</td><td><code class="i">src/services/guardrails/</code>, <code class="i">config/guardrails/</code>, <code class="i">03_mcp_server/skills/</code></td><td><code class="i">pytest tests/guardrails -q</code> en verde</td></tr>
+    <tr><td><b>parte-5-produccion</b><br>opcional</td><td>Model Armor, feedback, evaluación con RAGAS y despliegue en GCP</td><td><code class="i">DEPLOYMENT.md</code></td><td>El agente responde desde Cloud Run</td></tr>
+  </table></div>
+  <div class="code-map">
+    <div class="code-pane"><button class="copy-code" data-copy="diff-code">Copiar</button><pre class="code term" id="diff-code"><span class="lab">comparar dos partes</span>git diff main parte-2-skills -- 02_agent_api
+git diff parte-2-skills parte-3-hooks --stat
+git diff parte-3-hooks parte-4-guardrails -- 02_agent_api/src/services/agent_service.py</pre></div>
+    <div class="lab-note"><span class="k">Truco de clase</span><b>Lee el diff antes de correr</b><p>Si sabes qué líneas cambiaron, sabes qué observar en la consola. El diff de agent_service.py entre la parte 2 y la 3 cabe en una pantalla.</p></div>
+  </div>
+  </div>
+</section>
+
+<section class="mod" id="r4">
+  <div class="mod-head"><span class="mod-num">05</span><h2 class="mod-title">Sigue un mensaje archivo por archivo</h2></div>
+  <p class="mod-kicker">Recorrido en la rama parte-4-guardrails · El código</p>
+  <div class="mod-body">
+  <p class="lede">Un alumno escribe «¿Qué ruta sigo para ser pentester?». Este es el camino que recorre ese texto dentro del repo, con el archivo exacto donde ocurre cada paso.</p>
+  <figure class="diagram art"><div class="art-head"><span class="art-num">Artefacto 03</span><span class="art-name">Un mensaje dentro del código · del webhook a la respuesta</span></div>
+    <div class="art-body">
+      <div class="svgbox"><span class="slabel" id="cf-phase"></span><div id="cf-stage"></div></div>
+      <pre class="code term" id="cf-llm"></pre>
+      <div class="cap" id="cf-cap"></div>
+    </div>
+    <div class="actrl"><div class="dots" id="cf-dots"></div><span class="sc" id="cf-sc"></span><button class="abtn" id="cf-prev">Anterior</button><button class="abtn pri" id="cf-next">Siguiente</button></div></figure>
+  </div>
+</section>
+
+<section class="mod" id="r5">
+  <div class="mod-head"><span class="mod-num">06</span><h2 class="mod-title">Qué necesitas antes de la clase y en qué orden se levanta</h2></div>
+  <p class="mod-kicker">Puesta en marcha · Manos a la obra</p>
+  <div class="mod-body">
+  <p class="lede">El orden importa: cada servicio necesita que el anterior esté arriba. Los comandos completos para Linux, macOS y Windows están en el laboratorio guiado de la guía de la sesión.</p>
+  <div class="grid-2">
+    <div class="card tool"><span class="split-label">Antes de clase</span><h3>Requisitos</h3><p>Python 3.11 o superior, Docker, Git, una API key de OpenAI, PostgreSQL y Qdrant con los documentos del instituto (o la carpeta <code class="i">01_data_setup</code>), un número de WhatsApp de pruebas y, para la parte 4, una API key gratis de Groq.</p></div>
+    <div class="card brain"><span class="split-label">En clase</span><h3>Orden de arranque</h3><p>1. WAHA en Docker. 2. Agent API en :8080. 3. Gateway en :8090. 4. En el dashboard de WAHA: sesión, QR y webhook. 5. Un mensaje desde otro celular.</p></div>
+  </div>
+  <div class="tablewrap"><table class="fw">
+    <tr><th>Archivo .env</th><th>Variables que tienes que completar</th><th>Desde</th></tr>
+    <tr><td><code class="i">02_agent_api/.env</code></td><td><code class="i">OPENAI_API_KEY</code>, <code class="i">DATABASE_URL</code>, <code class="i">QDRANT_URL</code>, <code class="i">QDRANT_API_KEY</code></td><td>Parte 1</td></tr>
+    <tr><td><code class="i">02_agent_api/.env</code></td><td><code class="i">TOKEN_BUDGET</code> (8000 por defecto)</td><td>Parte 3</td></tr>
+    <tr><td><code class="i">02_agent_api/.env</code></td><td><code class="i">DEMO_MCP_SERVER_PATH</code> (ruta absoluta a <code class="i">03_mcp_server/mcp_server.py</code>), <code class="i">GROQ_API_KEY</code></td><td>Parte 4</td></tr>
+    <tr><td><code class="i">02_chatbot_gateway/.env</code></td><td><code class="i">CHATBOT_API_URL</code>, <code class="i">WAHA_API_URL</code>, <code class="i">WAHA_API_KEY</code></td><td>Parte 1</td></tr>
+    <tr><td><code class="i">03_mcp_server/.env</code></td><td><code class="i">OPENAI_API_KEY</code> y las de Qdrant</td><td>Parte 4</td></tr>
+  </table></div>
+  <div class="clarify"><span class="lbl">Seguridad</span><p>Los <code class="i">.env</code> nunca se suben: el <code class="i">.gitignore</code> del repo ya los excluye. Si alguna vez subes una key por error, no basta con borrarla del archivo: queda en el historial de git. Hay que revocarla y crear otra.</p></div>
+  </div>
+</section>
+
+<section class="mod" id="r6">
+  <div class="mod-head"><span class="mod-num">07</span><h2 class="mod-title">Lo que suele fallar y cómo reconocerlo</h2></div>
+  <p class="mod-kicker">Problemas frecuentes · Manos a la obra</p>
+  <div class="mod-body">
+  <p class="lede">Casi todos los problemas del lab son de conexión entre servicios, no de código. Revisa primero en qué servicio se cortó el mensaje.</p>
+  <div class="tablewrap"><table class="fw">
+    <tr><th>Síntoma</th><th>Causa probable</th><th>Qué hacer</th></tr>
+    <tr><td>El Gateway no recibe nada</td><td><code class="i">host.docker.internal</code> no resuelve (Linux) o el webhook está en https</td><td>Usa la IP local de tu máquina y <code class="i">http://</code></td></tr>
+    <tr><td>El Gateway responde 401 al enviar</td><td><code class="i">WAHA_API_KEY</code> distinta a la del .env de WAHA</td><td>Copia la key de <code class="i">waha/.env</code> al .env del Gateway</td></tr>
+    <tr><td>El alumno recibe un mensaje de error amable</td><td>El Agent API no está arriba o tardó más de 60 segundos</td><td>Revisa la terminal del Agent API</td></tr>
+    <tr><td>Todo mensaje se bloquea en la parte 4</td><td>Falta <code class="i">GROQ_API_KEY</code>: las capas 7 y 8 fallan cerrado</td><td>Crea la key gratis en console.groq.com</td></tr>
+    <tr><td>El agente no encuentra documentos en la parte 4</td><td><code class="i">DEMO_MCP_SERVER_PATH</code> vacío o relativo, o falta el .env de 03_mcp_server</td><td>Ruta absoluta y .env con Qdrant</td></tr>
+    <tr><td><code class="i">pytest</code> falla al importar</td><td>No hay .env en 02_agent_api</td><td><code class="i">cp .env.example .env</code> basta para los tests</td></tr>
+    <tr><td>WhatsApp desvincula el número</td><td>Muchos mensajes seguidos desde un número nuevo</td><td>Usa un número de pruebas y no hagas envíos masivos</td></tr>
+  </table></div>
+  </div>
+</section>
+
+<section class="mod" id="r7">
+  <div class="mod-head"><span class="mod-num">08</span><h2 class="mod-title">Lo que entregas al final de la sesión</h2></div>
+  <p class="mod-kicker">Entregable · Cierre</p>
+  <div class="mod-body">
+  <p class="lede">Un agente production-ready con skills modulares, hooks de seguridad, test suite y evaluación continua. En concreto:</p>
+  <div class="grid-2">
+    <div class="card human"><span class="split-label">Evidencia 1</span><h3>Conversación por WhatsApp</h3><p>Captura de una pregunta respondida con información del instituto.</p></div>
+    <div class="card brain"><span class="split-label">Evidencia 2</span><h3>Una skill propia</h3><p>Una carpeta nueva en <code class="i">03_mcp_server/skills/</code> con su SKILL.md, y el log donde se carga.</p></div>
+    <div class="card tool"><span class="split-label">Evidencia 3</span><h3>Un ataque bloqueado</h3><p>El log con la capa que lo detuvo y el hash del mensaje.</p></div>
+    <div class="card tool"><span class="split-label">Evidencia 4</span><h3>Tests en verde, más uno tuyo</h3><p><code class="i">pytest tests/guardrails -q</code> pasando, con un test nuevo escrito por ti.</p></div>
+  </div>
+  <div class="why"><span class="lbl">Cómo se revisa</span><p>No gana el agente con más capas. Gana quien explica por qué cada hook está en ese orden y qué pasaría si se quita.</p></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <div>
+      <h2>Aprende, aplica y crece.</h2>
+      <p>AI Solution Architect · Módulo 4 · Sesión 2 · Guía del repositorio modulo4-sesion2-lab.</p>
+    </div>
+    <div class="credit">Joel Espinoza Rojas<br>Líder Plataforma Agéntica · Senior AI/ML Engineer<br><a href="https://www.linkedin.com/in/joelespinozaro/">linkedin.com/in/joelespinozaro</a></div>
+  </div>
+</footer>
+</main>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-inner" role="dialog" aria-modal="true" aria-label="Diagrama ampliado">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Cerrar">✕</button>
+    <div class="lightbox-svg" id="lightboxSvg"></div>
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+</div>
+
+
+<script>
+
+const $=id=>document.getElementById(id);
+function cap(id,t,d){$(id).innerHTML='<span class="ct">'+t+'</span>'+d;}
+function term(id,html){$(id).innerHTML=html;}
+function svg(vb,inner){return '<svg viewBox="'+vb+'" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Public Sans,system-ui,sans-serif">'+inner+'</svg>';}
+const SVGCSS='<style>.nd rect,.ln{transition:fill .3s,stroke .3s}.pp{animation:pp .45s ease both}@keyframes pp{from{opacity:0}to{opacity:1}}</style>';
+/* tres roles con significado, como en la guía de agentes: LLM y decisión, tools y datos, persona y control */
+const ROLE={brain:["var(--brain)","var(--brain-tint)","var(--brain-tint-strong)"],tool:["var(--tool)","var(--tool-tint)","var(--tool-tint-strong)"],human:["var(--human)","var(--human-tint)","var(--human-tint-strong)"]};
+const IROLE={"brain":"brain","bot":"brain","route":"brain","cpu":"brain","list-checks":"brain","refresh-cw":"brain","git-branch":"brain","message-square":"brain","alert-triangle":"brain",
+ "user":"human","users":"human","shield-check":"human","lock":"human","eye":"human","shield":"human","clock":"human"};
+function node(x,y,w,h,t1,t2,state,iconName){
+  const r=ROLE[IROLE[iconName]||"tool"],on=state==="on",past=state==="past";
+  const fill=on?r[2]:(past?r[1]:"var(--paper-raised)"),st=on||past?r[0]:"var(--line-strong)";
+  const tc=on||past?"var(--ink)":"var(--ink-faint)",ic=on||past?r[0]:"var(--ink-faint)";
+  return '<g class="nd"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="11" fill="'+fill+'" stroke="'+st+'" stroke-width="'+(on?2.2:1.4)+'"'+(state==="off"?' stroke-dasharray="4 3"':'')+'/>'+
+    (t2?'<text x="'+(x+14)+'" y="'+(y+20)+'" font-family="IBM Plex Mono,monospace" font-size="9.5" letter-spacing=".06em" fill="var(--ink-faint)">'+t2+'</text>':'')+
+    '<text x="'+(x+14)+'" y="'+(y+(t2?42:h/2+5))+'" font-size="13.5" font-weight="700" fill="'+tc+'">'+t1+'</text>'+
+    (iconName?iconSvg(iconName,x+w-28,y+10,17,ic):'')+'</g>';
+}
+function link(x1,y1,x2,y2,on,dash){return '<line class="ln" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(on?"var(--brain)":"var(--line-strong)")+'" stroke-width="'+(on?2.2:1.5)+'"'+(dash&&!on?' stroke-dasharray="4 5"':'')+'/>';}
+function arrow(x,y,on){return '<polygon points="'+(x-8)+','+(y-5)+' '+x+','+y+' '+(x-8)+','+(y+5)+'" fill="'+(on?"var(--brain)":"var(--line-strong)")+'"/>';}
+/* ============ iconos (Lucide, ISC License · lucide.dev) ============ */
+const ICONS={
+  "puzzle":'<path d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"></path>',
+  "book-open":'<path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>',
+  "smartphone":'<rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path>',
+  "tag":'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle>',
+  "eye-off":'<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"></path><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"></path><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"></path><path d="m2 2 20 20"></path>',
+  "boxes":'<path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path><path d="m7 16.5-4.74-2.85"></path><path d="m7 16.5 5-3"></path><path d="M7 16.5v5.17"></path><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"></path><path d="m17 16.5-5-3"></path><path d="m17 16.5 4.74-2.85"></path><path d="M17 16.5v5.17"></path><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"></path><path d="M12 8 7.26 5.15"></path><path d="m12 8 4.74-2.85"></path><path d="M12 13.5V8"></path>',
+  "flask":'<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"></path><path d="M8.5 2h7"></path><path d="M7 16h10"></path>',
+  "factory":'<path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path><path d="M17 18h1"></path><path d="M12 18h1"></path><path d="M7 18h1"></path>',
+  "rocket":'<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>',
+  "power":'<path d="M12 2v10"></path><path d="M18.4 6.6a9 9 0 1 1-12.77.04"></path>',
+  "scale":'<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>',
+  "skull":'<path d="m12.5 17-.5-1-.5 1h1z"></path><path d="M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z"></path><circle cx="15" cy="12" r="1"></circle><circle cx="9" cy="12" r="1"></circle>',
+  "link":'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>',
+  "user-x":'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" x2="22" y1="8" y2="13"></line><line x1="22" x2="17" y1="8" y2="13"></line>',
+  "history":'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path>',
+  "sparkles":'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path>',
+  "pencil":'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path>',
+  "circle-check":'<circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path>',
+  "dollar":'<line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>',
+  "school":'<path d="M14 22v-4a2 2 0 1 0-4 0v4"></path><path d="m18 10 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7.382a1 1 0 0 1 .553-.894L6 10"></path><path d="M18 5v17"></path><path d="m4 6 7.106-3.553a2 2 0 0 1 1.788 0L20 6"></path><path d="M6 5v17"></path><circle cx="12" cy="9" r="2"></circle>',
+  "cloud-off":'<path d="m2 2 20 20"></path><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"></path><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"></path>',
+  "alert-triangle":'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" />',
+  "bar-chart-3":'<path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M7 16h8" /><path d="M7 11h12" /><path d="M7 6h3" />',
+  "bot":'<path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" />',
+  "brain":'<path d="M12 18V5" /><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" /><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" /><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" /><path d="M18 18a4 4 0 0 0 2-7.464" /><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" /><path d="M6 18a4 4 0 0 1-2-7.464" /><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />',
+  "check":'<path d="M20 6 9 17l-5-5" />',
+  "clock":'<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />',
+  "cloud":'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />',
+  "code":'<path d="m16 18 6-6-6-6" /><path d="m8 6-6 6 6 6" />',
+  "cpu":'<path d="M12 20v2" /><path d="M12 2v2" /><path d="M17 20v2" /><path d="M17 2v2" /><path d="M2 12h2" /><path d="M2 17h2" /><path d="M2 7h2" /><path d="M20 12h2" /><path d="M20 17h2" /><path d="M20 7h2" /><path d="M7 20v2" /><path d="M7 2v2" /><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="8" y="8" width="8" height="8" rx="1" />',
+  "database":'<ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" />',
+  "eye":'<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" />',
+  "file-text":'<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" />',
+  "filter":'<path d="M2 5h20" /><path d="M6 12h12" /><path d="M9 19h6" />',
+  "folder":'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />',
+  "gauge":'<path d="m12 14 4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" />',
+  "git-branch":'<path d="M15 6a9 9 0 0 0-9 9V3" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" />',
+  "git-merge":'<circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 21V9a9 9 0 0 0 9 9" />',
+  "globe":'<circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />',
+  "key":'<path d="m2 21 9.6-9.6" /><path d="m7.5 15.5 2.3 2.3a1 1 0 0 1 0 1.4l-2.1 2.1a1 1 0 0 1-1.4 0L4 19" /><circle cx="15.5" cy="7.5" r="5.5" />',
+  "layers":'<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />',
+  "list-checks":'<path d="M13 5h8" /><path d="M13 12h8" /><path d="M13 19h8" /><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" />',
+  "lock":'<rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />',
+  "message-square":'<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" />',
+  "network":'<rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" /><path d="M12 12V8" />',
+  "plug":'<path d="M12 22v-5" /><path d="M15 8V2" /><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" /><path d="M9 8V2" />',
+  "refresh-cw":'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" />',
+  "route":'<circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" />',
+  "search":'<path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />',
+  "send":'<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" />',
+  "server":'<rect width="20" height="8" x="2" y="2" rx="2" ry="2" /><rect width="20" height="8" x="2" y="14" rx="2" ry="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" />',
+  "settings":'<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" />',
+  "shield":'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />',
+  "shield-check":'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" />',
+  "terminal":'<path d="M12 19h8" /><path d="m4 17 6-6-6-6" />',
+  "unlock":'<rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" />',
+  "user":'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />',
+  "users":'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" />',
+  "webhook":'<path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2" /><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1a4 4 0 1 1 6.89-4.06" /><path d="m12 6 3.13 5.73C15.66 12.7 16.9 13 18 13a4 4 0 0 1 0 8" />',
+  "workflow":'<rect width="8" height="8" x="3" y="3" rx="2" /><path d="M7 11v4a2 2 0 0 0 2 2h4" /><rect width="8" height="8" x="13" y="13" rx="2" />',
+  "x":'<path d="M18 6 6 18" /><path d="m6 6 12 12" />',
+  "zap":'<path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" />'
+};
+function icon(name,size,color){
+  const d=ICONS[name]||(typeof ICONS_IT!=="undefined"&&ICONS_IT[name]);
+  if(!d)return "";
+  size=size||18;
+  return '<svg class="ic" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||"currentColor")+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+}
+function iconSvg(name,x,y,size,color){
+  const d=ICONS[name]||(typeof ICONS_IT!=="undefined"&&ICONS_IT[name]);
+  if(!d)return "";
+  size=size||18;
+  return '<svg x="'+x+'" y="'+y+'" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||"#E6EDF7")+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+}
+
+
+/* ============ stepper ============ */
+function stepper(pre,n,draw){
+  let i=0;
+  const dots=$(pre+"-dots"),sc=$(pre+"-sc"),prev=$(pre+"-prev"),next=$(pre+"-next");
+  dots.innerHTML=Array.from({length:n},(_,k)=>'<i data-k="'+k+'"></i>').join("");
+  dots.querySelectorAll("i").forEach(d=>d.addEventListener("click",()=>{i=+d.dataset.k;paint();}));
+  function paint(){
+    dots.querySelectorAll("i").forEach((d,k)=>{d.className=k===i?"on":(k<i?"done":"");});
+    sc.textContent=(i+1)+" / "+n;
+    prev.disabled=i===0;next.disabled=i===n-1;
+    next.textContent=i===n-1?"Fin":"Siguiente";
+    draw(i);
+  }
+  prev.addEventListener("click",()=>{if(i>0){i--;paint();}});
+  next.addEventListener("click",()=>{if(i<n-1){i++;paint();}});
+  paint();
+}
+function tabs(id,onPick){
+  const box=$(id);
+  box.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    box.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    onPick(b.dataset.k);
+  }));
+  onPick(box.querySelector("button.on").dataset.k);
+}
+document.querySelectorAll(".copy-code").forEach(btn=>btn.addEventListener("click",async()=>{
+  const target=$(btn.dataset.copy);
+  if(!target)return;
+  const clone=target.cloneNode(true);
+  clone.querySelectorAll(".lab").forEach(label=>label.remove());
+  const value=clone.textContent.trim();
+  try{
+    if(!navigator.clipboard)throw new Error("clipboard unavailable");
+    await navigator.clipboard.writeText(value);
+  }catch(err){
+    const area=document.createElement("textarea");
+    area.value=value;area.setAttribute("readonly","");area.style.position="fixed";area.style.opacity="0";
+    document.body.appendChild(area);area.select();document.execCommand("copy");area.remove();
+  }
+  const original=btn.textContent;
+  btn.textContent="Copiado ✓";btn.classList.add("done");
+  setTimeout(()=>{btn.textContent=original;btn.classList.remove("done");},1400);
+}));
+
+/* ============ helpers propios de la sesión ============ */
+function tx(x,y,t,size,col,anchor,weight,mono){return '<text x="'+x+'" y="'+y+'" font-size="'+(size||13)+'" fill="'+(col||"var(--ink-dim)")+'"'+(anchor?' text-anchor="'+anchor+'"':'')+(weight?' font-weight="'+weight+'"':'')+(mono?' font-family="IBM Plex Mono,monospace"':'')+'>'+t+'</text>';}
+function bx(x,y,w,h,fill,stroke,rx){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(rx==null?10:rx)+'" fill="'+fill+'" stroke="'+(stroke||"none")+'" stroke-width="1.4"/>';}
+function path(d,on,dash){return '<path class="ln" d="'+d+'" fill="none" stroke="'+(on?"var(--brain)":"var(--line-strong)")+'" stroke-width="'+(on?2.2:1.5)+'"'+(dash&&!on?' stroke-dasharray="4 6"':'')+'/>';}
+function st(k,i){return k===i?"on":(k<i?"past":"off");}
+function gauge(nombre,valor){
+  const R=30,C=2*Math.PI*R,off=(C*(1-valor)).toFixed(1);
+  return '<div class="gau"><svg viewBox="0 0 82 82"><circle cx="41" cy="41" r="'+R+'" fill="none" stroke="var(--line)" stroke-width="7"/>'+
+    '<circle class="arc" cx="41" cy="41" r="'+R+'" fill="none" stroke="var(--brain)" stroke-width="7" stroke-linecap="round" transform="rotate(-90 41 41)" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off+'"/>'+
+    '<text class="gv" x="41" y="46" text-anchor="middle">'+Math.round(valor*100)+'</text></svg><span class="gname">'+nombre+'</span></div>';
+}
+function mxBind(scope,data,capId){
+  const cells=document.querySelectorAll(scope+" .cell");
+  cells.forEach(c=>c.addEventListener("click",()=>{cells.forEach(x=>x.classList.toggle("on",x===c));cap(capId,data[c.dataset.k].t,data[c.dataset.k].d);}));
+  cells[0].click();
+}
+
+
+/* ============ R01 · arquitectura por rama ============ */
+const AR=[
+  {mode:"MAIN · PARTE 1",on:["wa","gw","ag","pg","qd"],inner:[],t:"Parte 1: el agente de RAG llega a WhatsApp",
+   d:"WAHA, Gateway y Agent API conectados. El agente busca en Qdrant con retrieve_documents y guarda el historial en Postgres. Todavía no tiene ningún control alrededor del modelo."},
+  {mode:"PARTE-2-SKILLS",on:["wa","gw","ag","pg","qd"],inner:["sk"],t:"Parte 2: el agente carga skills solo cuando hacen falta",
+   d:"Se suma SkillMiddleware: agrega al system prompt una línea por skill. Cuando la pregunta calza, el modelo llama a load_skill y recién ahí recibe las instrucciones completas. Las skills todavía viven en una lista dentro de agent_service.py."},
+  {mode:"PARTE-3-HOOKS",on:["wa","gw","ag","pg","qd"],inner:["sk","hk"],t:"Parte 3: middlewares que observan, limitan y reintentan",
+   d:"Logging, TokenBudget, SafetyGuard y Retry rodean cada llamada al modelo. Ahora sabes cuánto tardó, cuánto costó y qué pasó cuando el proveedor falló."},
+  {mode:"PARTE-4-GUARDRAILS",on:["wa","gw","ag","pg","qd","mcp","gq"],inner:["gr","sk","hk"],t:"Parte 4: guardrails, MCP server y tests",
+   d:"Ocho capas revisan cada mensaje antes del agente (las dos últimas consultan modelos en Groq). Las skills salen del código y pasan a 03_mcp_server como archivos SKILL.md, junto con la búsqueda en Qdrant. El agente lanza ese servidor solo, por stdio."},
+  {mode:"PARTE-5-PRODUCCION · OPCIONAL",on:["wa","gw","ag","pg","qd","mcp","gq","ma","ls"],inner:["gr","sk","hk"],t:"Parte 5: la versión que se despliega",
+   d:"Model Armor de Google Cloud revisa entrada y salida, con el pipeline local como respaldo. El MCP server corre aparte por HTTP, y el agente expone /api/feedback y /api/evaluate para medir calidad con RAGAS y LangSmith."}
+];
+tabs("ar-tabs",k=>{
+  const it=AR[+k],on=id=>it.on.includes(id)?"past":"off";let s=SVGCSS;
+  $("ar-mode").textContent=it.mode;
+  s+=node(14,96,110,58,"Alumno","WHATSAPP","past","user");
+  s+=link(124,125,150,125,true)+arrow(150,125,true);
+  s+=node(152,96,120,58,"WAHA",":3030",on("wa"),"plug");
+  s+=link(272,125,298,125,true)+arrow(298,125,true);
+  s+=node(300,96,130,58,"Gateway",":8090",on("gw"),"route");
+  s+=link(430,125,456,125,true)+arrow(456,125,true);
+  s+=bx(458,30,190,190,"var(--brain-tint)","var(--brain)",14)+tx(474,52,"AGENT API · :8080",10.5,"var(--brain)",null,700,true);
+  const IN=[["gr","Guardrails · 8 capas","shield"],["hk","Middlewares","gauge"],["sk","Skills","layers"]];
+  IN.forEach((b,j)=>{const a=it.inner.includes(b[0]),y=62+j*38;
+    s+=bx(472,y,162,30,a?"var(--paper-raised)":"none",a?"var(--brain)":"var(--line-strong)",8)+(a?"":'')+iconSvg(b[2],480,y+7,16,a?"var(--brain)":"var(--ink-faint)")+tx(502,y+20,b[1],12,a?"var(--ink)":"var(--ink-faint)",null,a?700:500);});
+  s+=bx(472,178,162,30,"var(--brain)","none",8)+iconSvg("brain",480,185,16,"#fff")+tx(502,198,"LLM + tools",12,"#fff",null,700);
+  const RC=[["PostgreSQL","HISTORIAL","pg","database"],["MCP server","STDIO","mcp","server"],["Qdrant","DOCUMENTOS","qd","database"],["Groq","CAPAS 7-8","gq","cloud"]];
+  const mcpOn=it.on.includes("mcp");
+  RC.forEach((r,j)=>{const y=12+j*58,a=it.on.includes(r[2]);
+    if(r[2]==="qd"&&mcpOn)s+=path("M772 "+(y-8)+" L772 "+y,true);
+    else s+=path("M648 "+(70+j*44)+" L676 "+(y+24),a);
+    s+=node(678,y,112,50,r[0],r[1],on(r[2]),r[3]);});
+  s+=node(300,184,130,46,"Model Armor","GCP",on("ma"),"shield-check")+path("M430 207 L458 207",it.on.includes("ma"));
+  s+=node(152,184,120,46,"LangSmith","TRAZAS",on("ls"),"eye");
+  $("ar-stage").innerHTML=svg("0 0 800 244",s);
+  cap("ar-cap",it.t,it.d);
+});
+
+/* ============ R02 · carpetas ============ */
+const FD={
+  root:{t:"La raíz: tres servicios y la preparación de datos",d:"Cada carpeta numerada es independiente: tiene su propio requirements.txt, su .env y se levanta en su propia terminal. El README de la raíz resume las ramas.",
+    o:'<span class="lab">modulo4-sesion2-lab/</span>01_data_setup/        <span class="good"># tablas de Postgres y carga de Qdrant</span>\n02_agent_api/          <span class="good"># el agente · :8080</span>\n02_chatbot_gateway/    <span class="good"># puente con WhatsApp · :8090</span>\n03_mcp_server/         <span class="good"># skills y búsqueda por MCP (parte 4)</span>\nREADME.md\n.gitignore             <span class="good"># excluye .env, .venv y waha/</span>'},
+  setup:{t:"01_data_setup: lo que hiciste en la sesión de RAG",d:"Si ya tienes Postgres y Qdrant con los documentos del instituto, sáltala. Si no, database.sql crea la tabla de historial y el notebook vectoriza los markdown de data/ en Qdrant.",
+    o:'<span class="lab">01_data_setup/</span>data/\n  cursos.md · programas.md · horarios.md\n  matricula.md · faq.md · docentes.md …\ndatabase.sql           <span class="good"># tabla history</span>\nqdrant-db.ipynb        <span class="good"># carga los .md en Qdrant</span>\n.env.example'},
+  agent:{t:"02_agent_api: donde pasa casi toda la sesión",d:"routes recibe POST /api/chat, el controller valida, agent_service arma el agente con create_agent y su lista de middlewares. En la parte 4 aparecen guardrails/, config/guardrails/ con las reglas en YAML y tests/.",
+    o:'<span class="lab">02_agent_api/ · rama parte-4-guardrails</span>src/\n  main.py                       <span class="good"># FastAPI · :8080</span>\n  routes/chat.py                <span class="good"># POST /api/chat</span>\n  controllers/chat_controller.py\n  services/\n    agent_service.py            <span class="good"># create_agent + middleware=[…]</span>\n    middleware/                 <span class="good"># logging, token_budget, safety, retry</span>\n    guardrails/layer1…layer8    <span class="good"># una capa por archivo</span>\n    tools.py                    <span class="good"># conexión al MCP server</span>\n  repositories/history_repository.py\nconfig/guardrails/*.yaml        <span class="good"># reglas editables sin tocar Python</span>\ntests/guardrails/               <span class="good"># pytest</span>'},
+  gw:{t:"02_chatbot_gateway: el traductor entre WhatsApp y el agente",d:"Un solo endpoint recibe el webhook de WAHA, responde al instante y procesa en segundo plano: marca leído, muestra «escribiendo…», llama al Agent API y envía la respuesta. El mapper traduce los formatos.",
+    o:'<span class="lab">02_chatbot_gateway/</span>src/\n  main.py                       <span class="good"># FastAPI · :8090</span>\n  routes/waha_router.py         <span class="good"># POST /waha/webhook</span>\n  mapper/waha_mapper.py         <span class="good"># WAHA ⇄ Agent API</span>\n  entities/chatbot_entities.py\n.env.example                    <span class="good"># CHATBOT_API_URL, WAHA_API_URL, WAHA_API_KEY</span>'},
+  mcp:{t:"03_mcp_server: las skills como archivos",d:"Desde la parte 4 las skills dejan de ser una lista en Python. Cada una es una carpeta con su SKILL.md. El servidor las publica como recursos skill:// y expone retrieve_documents y generate_pptx como tools. Para agregar una skill basta crear una carpeta.",
+    o:'<span class="lab">03_mcp_server/</span>skills/\n  ciberseguridad/SKILL.md\n  data_science_ia/SKILL.md\n  desarrollo_software/SKILL.md\n  diseno_ux_ui/SKILL.md\n  generar_presentaciones/SKILL.md\nsrc/routes/skills.py            <span class="good"># recursos skill://nombre/SKILL.md</span>\nsrc/routes/knowledge.py         <span class="good"># retrieve_documents → Qdrant</span>\nsrc/routes/pptx.py              <span class="good"># generate_pptx</span>\nmcp_server.py                   <span class="good"># lo lanza el agente por stdio</span>'}
+};
+tabs("fd-tabs",k=>{term("fd-llm",FD[k].o);cap("fd-cap",FD[k].t,FD[k].d);});
+
+/* ============ R03 · un mensaje en el código ============ */
+const CF=[
+  [0,"WAHA avisa","02_chatbot_gateway/src/routes/waha_router.py",'POST /waha/webhook  {"event": "message", "payload": {"from": "51999…@c.us", "body": "¿Qué ruta sigo para ser pentester?"}}\n→ {"status": "received"}   <span class="good"># responde al instante</span>',"El Gateway recibe el webhook","Responde «received» de inmediato y procesa en segundo plano. Si tardara, WAHA reintentaría el mismo evento y el alumno recibiría la respuesta dos veces."],
+  [0,"Gateway prepara","02_chatbot_gateway/src/mapper/waha_mapper.py",'sendSeen → presence typing\nsession_id = uuid5(número del alumno)\nPOST http://localhost:8080/api/chat {"question": "…", "session_id": "…"}',"Marca leído, muestra «escribiendo…» y llama al agente","El session_id sale del número, así el historial del alumno se mantiene entre conversaciones."],
+  [1,"Agent API recibe","02_agent_api/src/routes/chat.py → controllers/chat_controller.py",'chat_controller → history_service.cargar(session_id)\n→ agent_service.chat(pregunta, historial)',"El Agent API carga el historial","El controller valida la petición y trae de Postgres los últimos mensajes de esa sesión."],
+  [2,"Guardrails","02_agent_api/src/services/guardrails/layer1…layer8",'capa 1 secretos ✓ · 2 inyección ✓ · 3 toxicidad ✓ · 4 regex ✓\ncapa 5 datos ✓ · 6 URLs ✓ · 7 Prompt Guard ✓ · 8 Safeguard ✓\n<span class="good">→ pasa al agente</span>',"Ocho capas revisan el mensaje","Cada capa es un AgentMiddleware con before_agent. La primera que bloquea corta todo con jump_to=end. Las reglas viven en config/guardrails/*.yaml."],
+  [3,"Middlewares","02_agent_api/src/services/middleware/",'LoggingMiddleware.before_model     t0 = ahora\nTokenBudgetMiddleware.before_model  0 &lt; 8000 ✓\nRetryMiddleware.wrap_model_call     intento 1 de 3',"Los middlewares preparan la llamada","Se ejecutan antes de cada llamada al modelo, en el orden de la lista middleware=[…] de agent_service.py."],
+  [4,"Skill","03_mcp_server/skills/ciberseguridad/SKILL.md",'LLM → load_skill("ciberseguridad")\n<span class="good">← ## Niveles: 1. Básico: redes, Linux · 2. Intermedio: pentesting …</span>',"El modelo carga la skill de ciberseguridad","La pregunta calza con la description. El agente lee el SKILL.md desde el MCP server y ahora responde con la ruta oficial, no con lo que el modelo imagina."],
+  [4,"Tool","03_mcp_server/src/routes/knowledge.py",'LLM → retrieve_documents("curso de pentesting horarios")\n<span class="good">← 3 fragmentos de cursos.md y horarios.md (Qdrant)</span>',"Busca datos reales en Qdrant","La skill dice qué ruta seguir. El RAG trae los cursos, fechas y precios vigentes."],
+  [3,"Vuelta","02_agent_api/src/services/middleware/",'SafetyGuardMiddleware.after_model   sin términos prohibidos ✓\nTokenBudgetMiddleware.after_model   tokens += 1 840\nLoggingMiddleware.after_model       elapsed_ms = 3 120',"Los middlewares revisan la respuesta","Corren en orden inverso. Si SafetyGuard detectara algo, reemplazaría la respuesta y cortaría."],
+  [0,"Respuesta","02_chatbot_gateway/src/routes/waha_router.py",'Agent API → {"answer": "Para ser pentester te recomiendo…"}\nhistory_service.guardar(…)\nGateway → presence paused → sendText',"El alumno recibe la respuesta","El Agent API guarda el intercambio en Postgres y el Gateway lo envía por WhatsApp. Si algo falló en el camino, el Gateway envía un mensaje amable en su lugar."]
+];
+stepper("cf",CF.length,i=>{
+  const it=CF[i];$("cf-phase").textContent="Paso "+(i+1)+" de "+CF.length;
+  let s=SVGCSS;
+  const Z=[["Gateway","route"],["Agent API","bot"],["Guardrails","shield"],["Middlewares","gauge"],["Skill + tools","layers"]];
+  Z.forEach((z,k)=>{const x=14+k*157;s+=node(x,30,140,62,z[0],"ZONA "+(k+1),k===it[0]?"on":"off",z[1]);if(k<4)s+=link(x+140,61,x+157,61,false);});
+  s+=tx(400,130,it[2],13,"var(--brain)","middle",700,true);
+  s+=tx(400,154,it[1],12,"var(--ink-dim)","middle",600);
+  $("cf-stage").innerHTML=svg("0 0 800 170",s);
+  term("cf-llm",'<span class="lab">'+it[1].toLowerCase()+'</span>'+it[3]);
+  cap("cf-cap",it[4],it[5]);
+});
+
+/* ============ navegación: flechas, índice completo y sección activa ============ */
+(function(){
+  const bar=$("navlinks"),L=$("nav-l"),R=$("nav-r"),btn=$("nav-idx"),panel=$("nav-panel"),pos=$("nav-pos");
+  const links=[...bar.querySelectorAll("a")],all=[...document.querySelectorAll('.topnav a[href^="#"]')];
+  function edges(){L.disabled=bar.scrollLeft<4;R.disabled=bar.scrollLeft+bar.clientWidth>=bar.scrollWidth-4;
+    bar.classList.toggle("fl",!L.disabled);bar.classList.toggle("fr",!R.disabled);}
+  L.addEventListener("click",()=>bar.scrollBy({left:-bar.clientWidth*.7,behavior:"smooth"}));
+  R.addEventListener("click",()=>bar.scrollBy({left:bar.clientWidth*.7,behavior:"smooth"}));
+  bar.addEventListener("scroll",edges,{passive:true});window.addEventListener("resize",edges);edges();
+  function setOpen(o){panel.hidden=!o;btn.setAttribute("aria-expanded",String(o));}
+  btn.addEventListener("click",e=>{e.stopPropagation();setOpen(panel.hidden);});
+  panel.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>setOpen(false)));
+  document.addEventListener("click",e=>{if(!panel.hidden&&!panel.contains(e.target))setOpen(false);});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false);});
+  const secs=links.map(a=>document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  let cur=-1;
+  function spy(){
+    const y=window.scrollY+120;let k=0;
+    secs.forEach((s,i)=>{if(s.offsetTop<=y)k=i;});
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4)k=secs.length-1;
+    if(k===cur)return;cur=k;
+    const id="#"+secs[k].id;
+    all.forEach(a=>a.classList.toggle("on",a.getAttribute("href")===id));
+    pos.textContent=String(k+1).padStart(2,"0")+"/"+secs.length;
+    const a=links[k],l=a.offsetLeft-bar.offsetLeft,r=l+a.offsetWidth;
+    if(l<bar.scrollLeft||r>bar.scrollLeft+bar.clientWidth)bar.scrollTo({left:l-bar.clientWidth/2+a.offsetWidth/2,behavior:"smooth"});
+  }
+  window.addEventListener("scroll",spy,{passive:true});spy();
+})();
+
+/* ============ modo presentación (lightbox) ============ */
+
+(function(){
+  // ---- Modo presentación: botón de ampliar en cada diagrama ----
+  var lb = document.getElementById('lightbox');
+  var lbSvg = document.getElementById('lightboxSvg');
+  var lbCaption = document.getElementById('lightboxCaption');
+  var lastFocused = null;
+
+  function expandIconSVG(){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + '<path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6"/></svg>';
+  }
+
+  function openLightbox(box){
+    var svg = box.querySelector('svg');
+    if(!svg) return;
+    var figure = box.closest('figure.diagram');
+    var caption = figure ? figure.querySelector('figcaption') : null;
+    lastFocused = document.activeElement;
+    lbSvg.innerHTML = '';
+    lbSvg.appendChild(svg.cloneNode(true));
+    lbCaption.innerHTML = caption ? caption.innerHTML : '';
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('lightboxClose').focus();
+  }
+
+  function closeLightbox(){
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lbSvg.innerHTML = '';
+    if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+  }
+
+  document.querySelectorAll('figure.diagram .svgbox').forEach(function(box){
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'expand-btn';
+    btn.setAttribute('aria-label', 'Ampliar diagrama para presentar');
+    btn.innerHTML = expandIconSVG();
+    btn.addEventListener('click', function(){ openLightbox(box); });
+    box.appendChild(btn);
+  });
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lb.addEventListener('click', function(e){ if(e.target === lb) closeLightbox(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && lb.classList.contains('open')) closeLightbox(); });
+
+  
+})();
+
+</script>
+</body>
+</html>
