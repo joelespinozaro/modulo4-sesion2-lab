@@ -184,6 +184,7 @@ def load_skill(skill_name: str) -> str:
         skill_name: nombre de la skill a cargar (ej. "desarrollo_software",
             "data_science_ia", "diseno_ux_ui", "ciberseguridad").
     """
+    logger.info("load_skill: el modelo pidió la skill %s", skill_name)
     for skill in SKILLS:
         if skill["name"] == skill_name:
             return f"Skill cargada: {skill_name}\n\n{skill['content']}"
