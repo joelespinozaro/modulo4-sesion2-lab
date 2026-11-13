@@ -202,7 +202,7 @@ class SkillMiddleware(AgentMiddleware):
     def __init__(self) -> None:
         skills_list = [f"- **{skill['name']}**: {skill['description']}" for skill in SKILLS]
         self.skills_prompt = "\n".join(skills_list)
-
+    
     def wrap_model_call(
         self,
         request: ModelRequest,
@@ -218,6 +218,7 @@ class SkillMiddleware(AgentMiddleware):
         ]
         new_system_message = SystemMessage(content=new_content)
         modified_request = request.override(system_message=new_system_message)
+        logger.info("modified_request:", modified_request)
         return handler(modified_request)
 
     async def awrap_model_call(
